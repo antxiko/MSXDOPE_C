@@ -10,12 +10,10 @@
 #include <stdio.h>
 
 
-
 #define  HALT __asm halt __endasm   //wait for the next interrupt
 
 //  definition of functions  ---------------------------------------------------
 void WAIT(uint cicles);
-char INKEY();
 void LOCATE(char x, char y);
 char PEEK(uint address);
 void POKE(uint address, char value);
@@ -28,28 +26,47 @@ void VPOKEARRAY(uint vaddr, char* text);
 void VPRINTNUMBER(char column, char line, char pLength, uint pNumber);
 void printTrig(signed char value);
 
+
 void DRUGS();
-void COST();
+void COST(char column, int barrio);
 void BARRIO();
 void STOCK();
 void VIAJAR();
+void COMERCIAR();
+char getR();
 
 // constants  ------------------------------------------------------------------
 const char bars[][15] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo"};
 const char drugs[][15] = {"Pegamento","Kifi","Hachis","Marihuana","Cocaina","MDMA", "LSD", "Kriptonita"};
-const int cost[] = { 10, 15, 20, 40, 100, 300, 1000, 2000};
 const char posX[]={0x15,0x6C,0xAC};
 const char posY[]={0x1E,0x26,0x2E,0x36,0x3E,0x46,0x4E,0x56,};
+
+const int disp[][8] = {
+  { 9, 12, 18, 30,105, 280, 1010, 2100},
+  { 11, 14, 19, 32,95, 310, 1050, 2050},
+  { 10, 15, 18, 35,105, 290, 1080, 1990},
+  { 10, 12, 21, 33,100, 305, 1030, 2030},
+  { 8, 13, 20, 28,90, 310, 1020, 1980},
+  { 10, 20, 19, 40,100, 300, 1000, 1950}
+  };
+  
+
+static unsigned long int next;
 
 //  definition of variables  ---------------------------------------------------
 
 int CURSOR = 0;
 int r = 1;
 int stock[] = { 0, 0, 0, 0, 0, 0, 0, 0};
+int camello[] = { 0, 0, 0, 0, 0, 0, 0, 0};
+
 int dia = 31;
 int dinero = 3000;
 int deuda = 3000;
 int bar = 0;
+char SEED;
+
+
 
 
 // Project: tMSgFX_def_tilesets
@@ -135,16 +152,21 @@ void main(void)
   for (s=0; s<8; ++s){
     stock[s] = 0;
   }
+  for (s=0; s<8; ++s){
+    camello[s] = 15;
+  }
+  COST(15,bar);
   bar = 0;
   dia = 31;
   dinero = 3000;
   deuda = 3000;
 
+
   setSprites8x8Patterns();
   initSprites();
    
   
-  COLOR(15,4,1); 
+  COLOR(15,1,1); 
   SCREEN(1);
   BARRIO(); 
 }
@@ -167,7 +189,11 @@ void BARRIO()
   VPRINT (15,22,"VIAJAR");
   VPRINT (23,22,"STOCK");
   DRUGS ();
-  COST ();
+  char cr = 15;
+  int b = bar;
+  int c;
+
+  COST(cr,b);
 
     while(1)
     {
@@ -189,6 +215,9 @@ void BARRIO()
       WAIT(15);
       VPRINT(10,17,"                ");
       VPRINTNUMBER(24,14,1,CURSOR);
+      char r;
+      r = getR();
+      VPRINTNUMBER(0,3,4, r);
       PUTSPRITE(0, posX[CURSOR], 174, 8, 7);
     }
     if (dir == 7){
@@ -214,10 +243,94 @@ void BARRIO()
       VPRINT(10,17,"                 ");
       VIAJAR();
     }
+     if (button < 0 && CURSOR == 0){
+      VPRINT(10,13,"HAS PULSADO COMERCIAR");
+      WAIT(15);
+      VPRINT(10,13,"                     ");
+      COMERCIAR();
+    }
   }
-  return ;
+  //return ;
 }
 
+void COMERCIAR()
+{ 
+  CURSOR = 0;
+
+  CLS();
+  DRUGS();
+  printCAMEL();
+  char cr = 21;
+  int b = bar;
+  COST(cr,b);
+  WAIT(15);
+
+  while(1)
+    {
+    HALT;
+    //------------------------- cursor keys
+    dir = STICK(CURSORKEYS);
+    VPRINTNUMBER(1,14,1,dir);
+    
+    button=STRIG(KEYBOARD_BUTTON);
+    printTrig(button);
+
+    PUTSPRITE(0,20,posY[CURSOR], 8, 7);
+    
+    if (dir == 3){
+      if (stock[CURSOR] > 0)
+      {
+        stock[CURSOR] = stock[CURSOR]- 1;
+        camello[CURSOR] = camello[CURSOR] +1;
+        printCAMEL();
+      }
+      VPRINT(10,17,"HAS PULSADO DRCH");
+      WAIT(15);
+      VPRINT(10,17,"                ");
+    }
+    if (dir == 7){
+      if (camello[CURSOR] > 0)
+      {
+        stock[CURSOR] = stock[CURSOR]+ 1;
+        camello[CURSOR] = camello[CURSOR] -1;
+        printCAMEL();
+      }
+      VPRINT(10,17,"HAS PULSADO IZDA");
+      WAIT(15);
+      VPRINT(10,17,"                ");
+    }
+    if (dir == 1){
+      CURSOR = CURSOR - 1;
+        if (CURSOR < 0){
+          CURSOR = 0;
+        }
+      VPRINT(10,17,"HAS PULSADO ARRIBA");
+      WAIT(15);
+      VPRINT(10,17,"                  ");
+      VPRINTNUMBER(24,14,1,CURSOR);
+      PUTSPRITE(0,20,posY[CURSOR], 8, 7);
+    }
+    if (dir == 5){
+      CURSOR = CURSOR + 1;
+        if (CURSOR > 7){
+          CURSOR=7;
+        }
+      VPRINT(10,17,"HAS PULSADO ABAJO");
+      WAIT(15);
+      VPRINT(10,17,"                 ");
+      VPRINTNUMBER(24,14,1,CURSOR);
+      PUTSPRITE(0,20,posY[CURSOR], 8, 7);
+    }
+    if (button < 0)
+    {
+      VPRINT(10,17,"HAS PULSADO SPACIO");
+      WAIT(15);
+      VPRINT(10,17,"                  ");
+      //bar = CURSOR;
+      BARRIO();
+    }
+  }
+}
 void STOCK()
 {
   CLS();
@@ -302,6 +415,36 @@ void VIAJAR()
       VPRINT(10,17,"HAS PULSADO SPACIO");
       WAIT(15);
       VPRINT(10,17,"                  ");
+      char r;
+      r = getR();
+      if (r<70 && r>0)
+      {
+        CLS();
+        VPRINT(0,0,"NO HA PASADO NADA");
+        WAIT(50);
+      }
+      if (r<89 && r>71)
+      {
+        CLS();
+        VPRINT(0,0,"JONKI!!!!");
+        WAIT(50);
+      }
+      if (r<99 && r>91)
+      {
+        CLS();
+        VPRINT(0,0,"POLICIA!!!!");
+        WAIT(50);
+      }
+      if (r<115 && r>100)
+      {
+        VPRINT(0,0,"OVERFLOW");
+        WAIT(50);
+      }
+      if (r<128 && r>114)
+      {
+        VPRINT(0,0,"UNDERFLOW");
+        WAIT(50);
+      }
       bar = CURSOR;
       dia = dia - 1;
       deuda = (deuda+200);
@@ -316,12 +459,26 @@ void DRUGS(){
   }
 }
 
-void COST(){
+void COST(char column, int barrio){
   int c;
   for (c = 0; c < 8; ++c)
   {
-  VPRINTNUMBER(15,4+c,5,cost[c]);
+  VPRINTNUMBER(column,4+c,5,disp[barrio][c]);
   }
+}
+
+void printCAMEL()
+{
+  int c;
+  for (c = 0; c < 8; ++c)
+  {
+  VPRINTNUMBER(15,4+c,2,stock[c]);
+  }
+  for (c = 0; c < 8; ++c)
+  {
+  VPRINTNUMBER(18,4+c,2,camello[c]);
+  }
+  WAIT(15);
 }
 
 
@@ -485,6 +642,16 @@ void initSprites()
       Y++;
     }
   }
+}
+
+char getR()
+{
+__asm
+
+  ld   A,R  
+  ld   L,A ;return L
+   
+__endasm;
 }
 
 
