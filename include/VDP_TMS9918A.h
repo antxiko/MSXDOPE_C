@@ -1,21 +1,8 @@
 /* =============================================================================
-  SDCC MSX ROM VDP TMS9918A Functions Library (object type)
-  Version: 1.0
-  Author: mvac7/303bcn
-  Architecture: MSX
-  Format: C Object (SDCC .rel)
-  Programming language: C
-  WEB: -
-  mail: mvac7303b@gmail.com
-
-  Description:
-    Open Source library of functions to work with the TMS9918A video processor 
-    
-  History of versions:
-    v1.0 (14/02/2014) current version
+  VDP TMS9918A MSX ROM SDCC Library (fR3eL Project)
 ============================================================================= */
-#ifndef  __VDP_TMS9918_H__
-#define  __VDP_TMS9918_H__
+#ifndef  __VDP_TMS9918A_H__
+#define  __VDP_TMS9918A_H__
 
 
 
@@ -95,6 +82,14 @@
 
 
 
+// boolean
+#ifndef _BOOLEAN
+#define _BOOLEAN
+  typedef enum {false = 0, true = 1} boolean;
+#endif
+
+
+
 
 /* =============================================================================
  SCREEN
@@ -102,7 +97,27 @@
  Input      : [char] number of screen mode
  Output     : -
 ============================================================================= */
-extern void SCREEN(char);
+void SCREEN(char mode);
+
+
+
+/* =============================================================================
+ SetSpritesSize
+ Description: Set size type for the sprites.
+ Input:       [char] size: 0=8x8; 1=16x16
+ Output:      -
+============================================================================= */ 
+void SetSpritesSize(char size);
+
+
+
+/* =============================================================================
+ SetSpritesZoom
+ Description: Set zoom type for the sprites.
+ Input:       [char] zoom: false/0 = x1; true/1 = x2
+ Output:      -
+============================================================================= */
+void SetSpritesZoom(boolean zoom);
 
 
 
@@ -114,7 +129,7 @@ extern void SCREEN(char);
               [char] border color
  Output     : -     
 ============================================================================= */
-extern void COLOR(char, char, char);
+void COLOR(char ink, char background, char border);
 
 
 
@@ -125,7 +140,7 @@ extern void COLOR(char, char, char);
               [char] value
  Output     : - 
 ============================================================================= */
-extern void VPOKE(unsigned int, char);
+void VPOKE(unsigned int vaddr, char value);
 
 
 
@@ -135,7 +150,7 @@ extern void VPOKE(unsigned int, char);
  Input      : [unsigned int] VRAM address
  Output     : [char] value
 ============================================================================= */ 
-extern char VPEEK(unsigned int);
+char VPEEK(unsigned int vaddr);
 
 
 
@@ -147,7 +162,7 @@ extern char VPEEK(unsigned int);
               [char] Value to fill.
  Output     : - 
 ============================================================================= */
-extern void FillVRAM(unsigned int, unsigned int, char);
+void FillVRAM(unsigned int vaddr, unsigned int length, char value);
 
 
 
@@ -159,7 +174,7 @@ extern void FillVRAM(unsigned int, unsigned int, char);
               [unsigned int] blocklength
  Output     : - 
 ============================================================================= */
-extern void CopyToVRAM(unsigned int, unsigned int, unsigned int);
+void CopyToVRAM(unsigned int addr, unsigned int vaddr, unsigned int length);
 
 
 
@@ -171,7 +186,7 @@ extern void CopyToVRAM(unsigned int, unsigned int, unsigned int);
               [unsigned int] blocklength
  Output     : -             
 ============================================================================= */
-extern void CopyFromVRAM(unsigned int, unsigned int, unsigned int);
+void CopyFromVRAM(unsigned int vaddr, unsigned int addr, unsigned int length);
 
 
 
@@ -182,7 +197,7 @@ extern void CopyFromVRAM(unsigned int, unsigned int, unsigned int);
               [char] value
  Output     : -             
 ============================================================================= */
-extern void SetVDP(char, char);
+void SetVDP(char reg, char value);
 
 
 
