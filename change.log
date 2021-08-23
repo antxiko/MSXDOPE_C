@@ -1,0 +1,6 @@
+23/8/21:
+    Actualizado README, creado changelog y TODO.
+    Añadida subrutina ran100 que devuelve un int aleatorio de 0 a 99
+    Ahora la deuda crece un 3% al dia (antes 200 fijos)
+
+Todo lo anterior.
