@@ -47,8 +47,6 @@ const int precioVAR[] = { 1,2, 3, 5, 10, 15, 20, 50};
 
 static unsigned long int next;
 
-//  definition of variables  ---------------------------------------------------
-
 int CURSOR = 0;
 int r = 1;
 int stock[] = { 0, 0, 0, 0, 0, 0, 0, 0};
@@ -633,8 +631,9 @@ void main(void)
     stock[s] = 0;
   }
   for (s=0; s<8; ++s){
-    camello[s] = 15;
+    camello[s] = 0;
   }
+  
 
   bar = 0;
   dia = 31;
@@ -658,6 +657,7 @@ void main(void)
 
   CopyToVRAM((uint) INTRO,BASE10,96*8);
 
+  
   while(1)
     {
     HALT;
@@ -893,7 +893,9 @@ void VIAJAR()
       }
       bar = CURSOR;
       dia = dia - 1;
-      deuda = (deuda+200);
+      int t;
+      t = ((deuda/100)*3);
+      deuda = (deuda + t);
       CLS();
       BARRIO();
     }
@@ -1082,6 +1084,11 @@ __asm
 __endasm;
 }
 
-
+int ran100() {
+  int a;
+  int b = getR();
+  a = ((b*100)/128);
+  return a;
+}
 
 
