@@ -1,3 +1,10 @@
+24/8/21
+    Rutina que genera un stock aleatorio en relacion a la rareza de la droja.
+    Limitar el gasto a lo disponible en dinero.
+    Variable de vida del player.
+    Retocada la GUI para dar cavida a la vida.
+    Retocada la rutina de eventos en viaje
+
 23/8/21:
     Actualizado README, creado changelog y TODO.
     Añadida subrutina ran100 que devuelve un int aleatorio de 0 a 99

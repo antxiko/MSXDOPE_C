@@ -19,6 +19,8 @@ void VPRINT(char column, char line, char* text);  //print in screen 1 or 2
 void VPOKEARRAY(uint vaddr, char* text);
 void VPRINTNUMBER(char column, char line, char pLength, uint pNumber);
 void printTrig(signed char value);
+void setSprites8x8Patterns();
+void initSprites();
 
 
 void DRUGS();
@@ -27,13 +29,14 @@ void STOCK();
 void VIAJAR();
 void COMERCIAR();
 void PRECIOS(char column, int barrio);
+void printCAMEL();
 char getR();
 
 // constants  ------------------------------------------------------------------
 const char bars[][15] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo"};
 const char drugs[][15] = {"Pegamento","Kifi","Hachis","Marihuana","Cocaina","MDMA", "LSD", "Kriptonita"};
 const char posX[]={0x15,0x6C,0xAC};
-const char posY[]={0x1E,0x26,0x2E,0x36,0x3E,0x46,0x4E,0x56,};
+const char posY[]={0x2E,0x36,0x3E,0x46,0x4E,0x56,0x5E,0x66};
 
 const int disp[][8] = {
   { 9, 12, 18, 30,105, 280, 1010, 2100},
@@ -43,7 +46,9 @@ const int disp[][8] = {
   { 8, 13, 20, 28,90, 310, 1020, 1980},
   { 10, 20, 19, 40,100, 300, 1000, 1950}
   };
+
 const int precioVAR[] = { 1,2, 3, 5, 10, 15, 20, 50};
+const int camelloVAR[] = { 4,5, 6, 10, 12, 16, 23, 35};
 
 static unsigned long int next;
 
@@ -57,6 +62,7 @@ int precioBARRIO[] = { 0, 0, 0, 0, 0, 0, 0, 0};
 int dia = 31;
 int dinero = 3000;
 int deuda = 3000;
+int vida = 100;
 int bar = 0;
 char SEED;
 int a = 0;
@@ -551,8 +557,8 @@ const unsigned char GUI[]={
 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1,
 0x1, 0x0,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20, 0x1, 0x0,
 0x0, 0x1,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20, 0x0, 0x1,
-0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0,
 0x0, 0x1,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20, 0x0, 0x1,
+0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0,
 0x1, 0x0,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20, 0x1, 0x0,
 0x0, 0x1,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20, 0x0, 0x1,
 0x1, 0x0,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20,0x20, 0x1, 0x0,
@@ -605,12 +611,9 @@ char _LineLength;  //sprites per line. TMS9918=4; V9938=8
 
 char spr_posX[8];
 char spr_posY[8];
-
 char dir=0;
 signed char button=0;
-
 const char sprcol[8]={12,2,3,7,6,8,9,14};
-
 const char SPRITE_DATA8x8[]={
 60,66,165,129,165,153,66,60,
 60,126,219,255,255,219,102,60,
@@ -630,15 +633,21 @@ void main(void)
   for (s=0; s<8; ++s){
     stock[s] = 0;
   }
-  for (s=0; s<8; ++s){
-    camello[s] = 0;
-  }
-  
-
+  //inicializamos el stock del camello
+      int a;
+        for (a=0;a<8;++a)
+          {
+         int b;
+         int c;
+          c = (ran100()/10);
+          b = ran100();
+          camello[a] = (b / camelloVAR[a]) + c;
+          }
   bar = 0;
   dia = 31;
   dinero = 3000;
   deuda = 3000;
+  vida = 100;
 
   setSprites8x8Patterns();
   initSprites();
@@ -686,6 +695,8 @@ void BARRIO()
   VPRINTNUMBER (11,2, 5, dinero);
   VPRINT (19,2, "Deuda: ");
   VPRINTNUMBER(25,2,5, deuda);
+  VPRINT (3,3, "Vida: ");
+  VPRINTNUMBER(9,3,3, vida);
 
   VPRINT (4,22, "COMERCIAR");
   VPRINT (15,22,"VIAJAR");
@@ -761,15 +772,21 @@ void COMERCIAR()
       {
         stock[CURSOR] = stock[CURSOR]- 1;
         camello[CURSOR] = camello[CURSOR] +1;
+        dinero = (dinero + precioBARRIO[CURSOR]);
         printCAMEL();
+        VPRINT (3,2, "Dinero: ");
+        VPRINTNUMBER (11,2, 5, dinero);
       }
     }
     if (dir == 7){
-      if (camello[CURSOR] > 0)
+      if (camello[CURSOR] > 0 && dinero>precioBARRIO[CURSOR])
       {
         stock[CURSOR] = stock[CURSOR]+ 1;
         camello[CURSOR] = camello[CURSOR] -1;
+        dinero = (dinero - precioBARRIO[CURSOR]);
         printCAMEL();
+        VPRINT (3,2, "Dinero: ");
+        VPRINTNUMBER (11,2, 5, dinero);
       }
     }
     if (dir == 1){
@@ -801,7 +818,7 @@ void STOCK()
   int c;
   for (c = 0; c < 8; ++c)
   {
-  VPRINTNUMBER(15,4+c,2,stock[c]);
+  VPRINTNUMBER(15,6+c,2,stock[c]);
   }
   WAIT(15);
 
@@ -829,10 +846,10 @@ void VIAJAR()
   int d;
   for (d = 0; d < 6; ++d)
   {
-  VPRINT(10,4+d,bars[d]);
+  VPRINT(10,6+d,bars[d]);
   }
-  VPRINT(10,10,"Hospital");
-  VPRINT(10,11,"Prestamista");
+  VPRINT(10,12,"Hospital");
+  VPRINT(10,13,"Prestamista");
   WAIT(15);
 
   while(1)
@@ -862,32 +879,34 @@ void VIAJAR()
     if (button < 0)
     {
       char r;
-      r = getR();
-      if (r<70 && r>0)
+      r = ran100();
+      if (r<55 && r>0)
       {
         CLS();
         VPRINT(0,0,"NO HA PASADO NADA");
         WAIT(50);
       }
-      if (r<89 && r>71)
+      if (r<65 && r>54)
       {
         CLS();
         VPRINT(0,0,"JONKI!!!!");
         WAIT(50);
       }
-      if (r<99 && r>91)
+      if (r<75 && r>64)
       {
         CLS();
         VPRINT(0,0,"POLICIA!!!!");
         WAIT(50);
       }
-      if (r<115 && r>100)
+      if (r<85 && r>74)
       {
+        CLS();
         VPRINT(0,0,"OVERFLOW");
         WAIT(50);
       }
-      if (r<128 && r>114)
+      if (r>84)
       {
+        CLS();
         VPRINT(0,0,"UNDERFLOW");
         WAIT(50);
       }
@@ -896,15 +915,26 @@ void VIAJAR()
       int t;
       t = ((deuda/100)*3);
       deuda = (deuda + t);
+      //inicializamos el stock del camello
+      int a;
+        for (a=0;a<8;++a)
+        {
+        int b;
+        int c;
+        c = (ran100()/10);
+        b = ran100();
+        camello[a] = (b / camelloVAR[a]) + c;
+        }
       CLS();
       BARRIO();
     }
   }
 }
+
 void DRUGS(){
   int d;
   for (d = 0; d < 8; ++d){
-  VPRINT(4,4+d,drugs[d]);
+  VPRINT(4,6+d,drugs[d]);
   }
 }
 
@@ -929,25 +959,23 @@ void PRECIOS(char column, int barrio){
   }
   for (c = 0; c < 8; ++c)
   {
-  VPRINTNUMBER(column,4+c,5,precioBARRIO[c]);
+  VPRINTNUMBER(column,6+c,5,precioBARRIO[c]);
   }
 }
-
 
 void printCAMEL()
 {
   int c;
   for (c = 0; c < 8; ++c)
   {
-  VPRINTNUMBER(15,4+c,2,stock[c]);
+  VPRINTNUMBER(15,6+c,2,stock[c]);
   }
   for (c = 0; c < 8; ++c)
   {
-  VPRINTNUMBER(18,4+c,2,camello[c]);
+  VPRINTNUMBER(18,6+c,2,camello[c]);
   }
   WAIT(15);
 }
-
 
 void LOCATE(char x, char y)
 {
@@ -993,6 +1021,7 @@ __asm
 
   pop  IX
 __endasm;
+return address;
 }
 
 void POKE(uint address, char value)
