@@ -1,3 +1,13 @@
+25/8/21
+    Implementado Jonki:
+        - Se puede atacar o intentar escapar (si se intenta escapar
+            50% de probabilidades de conseguirlo, si no se consigue
+            gana el jonki.
+        - Al atacar, si se tiene la pistola se gana siempre al jonki.
+        - Al atacar sin pistola al 75% se gana al 25% gana el jonki.
+        - Al ganar al jonki suelta de 1 a 3 unidades de droga aleatoria
+            y de 0 a 100 de dinero.
+
 24/8/21
     Rutina que genera un stock aleatorio en relacion a la rareza de la droja.
     Limitar el gasto a lo disponible en dinero.
