@@ -1,11 +1,14 @@
 - Retocar Mecanica del Jonki
 
-- Mecanica del policia
-    - Mecanica de sobornar
+- Retocar mecanica del policia
+    - Mecanica de sobornar.
+    - Mecanica de la carcel.
 
 - Mecanica del ¿pijo?
 
 - Mecanica del soplon
+    - ¿Es el vendedor del barrio un secreta?
+    - ¿En que barrio puedo pillar barato X?
 
 - Mecanica del rastro
     ¿armas y drogas baratas? (Navaja?)

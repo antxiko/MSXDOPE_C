@@ -29,6 +29,7 @@ void STOCK();
 void VIAJAR();
 void COMERCIAR();
 void JONKI();
+void POLICIA();
 void PRECIOS(char column, int barrio);
 void printCAMEL();
 char getR();
@@ -37,6 +38,7 @@ char getR();
 const char bars[][15] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo"};
 const char drugs[][15] = {"Pegamento","Kifi","Hachis","Marihuana","Cocaina","MDMA", "LSD", "Kriptonita"};
 const char posX[]={0x15,0x6C,0xAC};
+const char posXPOLI[]={0,57,120};
 const char posY[]={0x2E,0x36,0x3E,0x46,0x4E,0x56,0x5E,0x66};
 
 const int disp[][8] = {
@@ -726,7 +728,8 @@ void BARRIO()
         if (CURSOR == 3){
           CURSOR=2;
         }
-      PUTSPRITE(0, posX[CURSOR], 174, 8, 7);
+        WAIT(10);
+        PUTSPRITE(0, posX[CURSOR], 174, 8, 7);
     }
     if (dir == 7)
     {
@@ -735,7 +738,8 @@ void BARRIO()
         {
           CURSOR=0;
         }
-      PUTSPRITE(0, posX[CURSOR], 174, 8, 7);
+        WAIT(10);
+        PUTSPRITE(0, posX[CURSOR], 174, 8, 7);
     }
     if (button < 0 && CURSOR == 2)
     {
@@ -764,7 +768,6 @@ void COMERCIAR()
   PRECIOS(cr,b);
   VPRINT (3,2, "Dinero: ");
   VPRINTNUMBER (11,2, 5, dinero);
-  WAIT(15);
 
   while(1)
     {
@@ -782,6 +785,7 @@ void COMERCIAR()
         printCAMEL();
         VPRINT (3,2, "Dinero: ");
         VPRINTNUMBER (11,2, 5, dinero);
+        WAIT(10);
       }
     }
     if (dir == 7){
@@ -793,6 +797,7 @@ void COMERCIAR()
         printCAMEL();
         VPRINT (3,2, "Dinero: ");
         VPRINTNUMBER (11,2, 5, dinero);
+        WAIT(10);
       }
     }
     if (dir == 1){
@@ -800,14 +805,16 @@ void COMERCIAR()
         if (CURSOR < 0){
           CURSOR = 0;
         }
-      PUTSPRITE(0,20,posY[CURSOR], 8, 7);
+        WAIT(10);
+        PUTSPRITE(0,20,posY[CURSOR], 8, 7);
     }
     if (dir == 5){
       CURSOR = CURSOR + 1;
         if (CURSOR > 7){
           CURSOR=7;
         }
-      PUTSPRITE(0,20,posY[CURSOR], 8, 7);
+        WAIT(10);
+        PUTSPRITE(0,20,posY[CURSOR], 8, 7);
     }
     if (button < 0)
     {
@@ -857,7 +864,6 @@ void VIAJAR()
   }
   VPRINT(10,12,"Hospital");
   VPRINT(10,13,"Prestamista");
-  WAIT(15);
 
   while(1)
     {
@@ -874,14 +880,16 @@ void VIAJAR()
         if (CURSOR < 0){
           CURSOR = 0;
         }
-      PUTSPRITE(0,70,posY[CURSOR], 8, 7);
+        WAIT(10);
+        PUTSPRITE(0,70,posY[CURSOR], 8, 7);
     }
     if (dir == 5){
       CURSOR = CURSOR + 1;
         if (CURSOR > 7){
           CURSOR=7;
         }
-      PUTSPRITE(0,70,posY[CURSOR], 8, 7);
+        WAIT(10);
+        PUTSPRITE(0,70,posY[CURSOR], 8, 7);
     }
     if (button < 0)
     {
@@ -893,18 +901,19 @@ void VIAJAR()
       //   VPRINT(0,0,"NO HA PASADO NADA");
       //   WAIT(50);
       // }
+      // if (r<100 && r>0)
+      // {
+      //   CLS();
+      //   VPRINT(0,0,"JONKI!!!!");
+      //   WAIT(50);
+      //   JONKI();
+      // }
       if (r<100 && r>0)
-      {
-        CLS();
-        VPRINT(0,0,"JONKI!!!!");
-        WAIT(50);
-        JONKI();
-      }
-      if (r<75 && r>64)
       {
         CLS();
         VPRINT(0,0,"POLICIA!!!!");
         WAIT(50);
+        POLICIA();
       }
       if (r<85 && r>74)
       {
@@ -993,7 +1002,8 @@ void JONKI () {
         {
           CURSOR=1;
         }
-      PUTSPRITE(0, 56, 24, 8, 7);
+        WAIT(20);
+        PUTSPRITE(0, 56, 24, 8, 7);
     }
     if (dir == 7)
     {
@@ -1002,7 +1012,8 @@ void JONKI () {
         {
           CURSOR=0;
         }
-      PUTSPRITE(0, 0, 24, 8, 7);
+        WAIT(20);
+        PUTSPRITE(0, 0, 24, 8, 7);
     }
     if (button < 0 && CURSOR == 0){
       CLS();
@@ -1034,14 +1045,15 @@ void JONKI () {
   if (pistola == true){ // SI TENEMOS PISTOLA LE DISPARAMOS Y GANAMOS
     CLS();
     VPRINT(0,0,"DISPARAS LA JONKI");
-    WAIT(50);
-    r = ((ran100()*3)/100);
-    int rr = ((ran100()*7)/100);
+    r = ((ran100()*4)/100);
+    if (r<1){ r = 1;
+    }
+    int rr = ((ran100()*8)/100);
     int d = ran100();
     VPRINT(0,1,"EL JONKI LLEVA ");
     VPRINTNUMBER(15,1,1,r);
     VPRINT(17,1,"DE ");
-    VPRINT(21,1,drugs[r]);
+    VPRINT(21,1,drugs[rr]);
     VPRINT(0,2,"Y ");
     VPRINTNUMBER(2,2,3,d);
     VPRINT(6,2,"DE DINERO");
@@ -1051,7 +1063,7 @@ void JONKI () {
     int t;
     t = ((deuda/100)*3);
     deuda = (deuda + t);
-    WAIT(50);
+    WAIT(100);
     BARRIO();
   }
   else { // NO TENEMOS PISTOLA, PELEAMOS
@@ -1059,8 +1071,25 @@ void JONKI () {
     if (r<50){ //MENOS DE 50 GANAS AL JONKI
       CLS();
       VPRINT(0,0,"LE PEGAS UNA HOSTIA AL JONKI");
-      WAIT(50);
+      r = ((ran100()*4)/100);
+      if (r<1){ r = 1;
+      }
+      int rr = ((ran100()*7)/100);
+      int d = ran100();
+      VPRINT(0,1,"EL JONKI LLEVA ");
+      VPRINTNUMBER(15,1,1,r);
+      VPRINT(17,1,"DE ");
+      VPRINT(21,1,drugs[rr]);
+      VPRINT(0,2,"Y ");
+      VPRINTNUMBER(2,2,3,d);
+      VPRINT(6,2,"DE DINERO");
+      dinero = dinero + d;
+      stock[rr] = stock[rr] + r;
       dia = dia -1;
+      int t;
+      t = ((deuda/100)*3);
+      deuda = (deuda + t);
+      WAIT(100);
       BARRIO();
     }
     else { //MAS DE 50 EL JONKI TE ACUCHILLA
@@ -1073,6 +1102,137 @@ void JONKI () {
     }
   }
 }
+
+void POLICIA() {
+  CLS();
+  pistola = true;
+  CURSOR = 0;
+  vidaJonki=50;
+  VPRINT(1,3,"ATACAR");
+  VPRINT(8,3,"ESCAPAR");
+  VPRINT(16,3,"SOBORNAR");
+  PUTSPRITE(0,posXPOLI[CURSOR], 24, 8, 7);
+
+  while(1)
+    {
+    HALT;
+    //------------------------- cursor keys
+    dir = STICK(CURSORKEYS);
+    
+    button=STRIG(KEYBOARD_BUTTON);
+    if (dir == 3){
+      CURSOR = CURSOR + 1;
+        if (CURSOR > 2)
+        {
+          CURSOR=2;
+        }
+        WAIT(20);
+        PUTSPRITE(0, posXPOLI[CURSOR], 24, 8, 7);
+    }
+    if (dir == 7)
+    {
+      CURSOR = CURSOR - 1;
+        if (CURSOR < 0)
+        {
+          CURSOR=0;
+        }
+        WAIT(20);
+        PUTSPRITE(0, posXPOLI[CURSOR], 24, 8, 7);
+    }
+    if (button < 0 && CURSOR == 0){
+      CLS();
+      VPRINT(0,0,"ATACAS");
+      WAIT(50);
+      break;
+    }
+    if (button < 0 && CURSOR == 1)
+    {
+      CLS();
+      r = ran100();
+        if (r<75){ //75% Y SE CONSIGUE ESCAPAR
+        CLS();
+        VPRINT(0,0,"CONSIGUES ESCAPAR");
+        WAIT(50);
+        dia = dia -1;
+        BARRIO();
+        }
+    else { //25% PARA QUE EL JONKI GANE
+      CLS();
+      VPRINT(0,0,"NO ESCAPAS, POLI ATACA");
+      WAIT(50);
+      vida = vida -50;
+      BARRIO();
+      }
+    }
+    if (button < 0 && CURSOR == 2){
+      CLS();
+      VPRINT(0,0,"SOBORNAS");
+      WAIT(50);
+      break;
+    }
+  }
+
+  if (pistola == true){ // SI TENEMOS PISTOLA LE DISPARAMOS Y GANAMOS
+    CLS();
+    VPRINT(0,0,"DISPARAS AL POLI");
+    r = ((ran100()*4)/100);
+    if (r<1){ r = 1;
+    }
+    int rr = ((ran100()*8)/100);
+    int d = ran100();
+    VPRINT(0,1,"EL JONKI LLEVA ");
+    VPRINTNUMBER(15,1,1,r);
+    VPRINT(17,1,"DE ");
+    VPRINT(21,1,drugs[rr]);
+    VPRINT(0,2,"Y ");
+    VPRINTNUMBER(2,2,3,d);
+    VPRINT(6,2,"DE DINERO");
+    dinero = dinero + d;
+    stock[rr] = stock[rr] + r;
+    dia = dia -1;
+    int t;
+    t = ((deuda/100)*3);
+    deuda = (deuda + t);
+    WAIT(100);
+    BARRIO();
+  }
+  else { // NO TENEMOS PISTOLA, PELEAMOS
+    r = ran100();
+    if (r<50){ //MENOS DE 50 GANAS AL POLI
+      CLS();
+      VPRINT(0,0,"LE PEGAS UNA HOSTIA AL POLI");
+      r = ((ran100()*4)/100);
+      if (r<1){ r = 1;
+      }
+      int rr = ((ran100()*7)/100);
+      int d = ran100();
+      VPRINT(0,1,"EL JONKI LLEVA ");
+      VPRINTNUMBER(15,1,1,r);
+      VPRINT(17,1,"DE ");
+      VPRINT(21,1,drugs[rr]);
+      VPRINT(0,2,"Y ");
+      VPRINTNUMBER(2,2,3,d);
+      VPRINT(6,2,"DE DINERO");
+      dinero = dinero + d;
+      stock[rr] = stock[rr] + r;
+      dia = dia -1;
+      int t;
+      t = ((deuda/100)*3);
+      deuda = (deuda + t);
+      WAIT(100);
+      BARRIO();
+    }
+    else { //MAS DE 50 EL POLI TE DISPARA
+      CLS();
+      VPRINT(0,0,"EL POLI TE PEGA UN TIRO");
+      WAIT(50);
+      dia = dia -1;
+      vida = vida -50;
+      BARRIO();
+    }
+  }
+}
+
 void printCAMEL()
 {
   int c;
