@@ -1,8 +1,11 @@
-- Retocar Mecanica del Jonki
+- Hacer una funcion global de gestion de deuda, precios y dia de la semana
 
-- Retocar mecanica del policia
-    - Mecanica de sobornar.
-    - Mecanica de la carcel.
+- Retocar Mecanica del Jonki.
+
+- Retocar mecanica del policia.
+    - Mecanica de la carcel en una funcion global que incluya dia de la semana, precios y deuda.
+
+- Mecanica del poli secreta (a partir del dia 10)
 
 - Mecanica del ¿pijo?
 

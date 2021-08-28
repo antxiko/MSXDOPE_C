@@ -1,7 +1,15 @@
+28/8/21
+    - Corregido Bug de los precios.
+    - Corregido Viajar en relacion a los precios.
+    - Corregido los eventos en relacion a los precios.
+
+27/8/21
+    - Retocado el policia, añadido el soborno.
+
 26/8/21
     - Retocado Jonki, solo soltaba 3 tipos de drogas
     - Implementacion previa de Policia
-    
+
 25/8/21
     Implementado Jonki:
         - Se puede atacar o intentar escapar (si se intenta escapar

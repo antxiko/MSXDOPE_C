@@ -37,6 +37,7 @@ char getR();
 // constants  ------------------------------------------------------------------
 const char bars[][15] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo"};
 const char drugs[][15] = {"Pegamento","Kifi","Hachis","Marihuana","Cocaina","MDMA", "LSD", "Kriptonita"};
+const char diasSEMANA[][15] = {"Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"};
 const char posX[]={0x15,0x6C,0xAC};
 const char posXPOLI[]={0,57,120};
 const char posY[]={0x2E,0x36,0x3E,0x46,0x4E,0x56,0x5E,0x66};
@@ -1195,7 +1196,7 @@ void SOBORNO()
 CURSOR = 0;
 VPRINT(0,0,"SOBORNAS");
 WAIT(50);
-int r = ran100();
+r = ran100();
 int rr = ran100();
 int rrr = ran100();
 int rf = (r + rr) - rrr;
