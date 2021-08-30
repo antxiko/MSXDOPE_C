@@ -31,16 +31,19 @@ void COMERCIAR();
 void JONKI();
 void POLICIA();
 void PRECIOS(int barrio);
+void hospital();
+void prestamista();
 void printCAMEL();
 char getR();
 
 // constants  ------------------------------------------------------------------
-const char bars[][15] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo"};
+const char bars[][15] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo","Hospital","Prestamista"};
 const char drugs[][15] = {"Pegamento","Kifi","Hachis","Marihuana","Cocaina","MDMA", "LSD", "Kriptonita"};
 const char diasSEMANA[][15] = {"Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"};
 const char posX[]={0x15,0x6C,0xAC};
 const char posXPOLI[]={0,57,120};
 const char posY[]={0x2E,0x36,0x3E,0x46,0x4E,0x56,0x5E,0x66};
+const char posYHOSPI[]={0x2E,0x36,0x3E};
 
 const int disp[][8] = {
   { 9, 12, 18, 30,105, 280, 1010, 2100},
@@ -690,6 +693,12 @@ void main(void)
 
 void BARRIO()
 {
+  if (bar == 6){
+    hospital();
+  }
+  if (bar == 7){
+    prestamista();
+  }
   int CURSOR = 0;
   CopyToVRAM((uint) GUI,BASE10,96*8);
   VPRINT (3,1, "Barrio: ");
@@ -1151,9 +1160,40 @@ void POLICIA() {
       CLS();
       VPRINT(0,0,"ATACAS");
       WAIT(50);
-      PRECIOS(bar);
-      dia = dia -1;
-      BARRIO();
+      if (pistola = true)
+        {//CON PISTOLA
+        CLS();
+        int r = ran100();
+        if (r<75)
+          { //GANAS AL 75%
+          CLS();
+          VPRINT(0,0,"LLEVAS PISTOLA Y GANAS");
+          dia = dia -1;
+          PRECIOS(bar);
+          WAIT(50);
+          BARRIO();
+          }
+        if (r>74)
+          { //PIERDES AL 25%
+          CLS();
+          VPRINT(0,0,"LLEVAS PISTOLA Y PIERDES");
+          WAIT(50);
+          vida = vida - 50;
+          dia = dia -1;
+          PRECIOS(bar);
+          BARRIO();
+          }
+        }
+        if (pistola = false){
+          CLS();
+          VPRINT(0,0,"NO LLEVAS PISTOLA, TE PEGA UN TIRO");
+          VPRINT(0,1,"PERO CONSIGUES ESCAPAR");
+          WAIT(50);
+          vida = vida - 50;
+          dia = dia -1;
+          PRECIOS(bar);
+          BARRIO();
+        }
       }
     if (button < 0 && CURSOR == 1)
       {
@@ -1241,10 +1281,140 @@ PUTSPRITE(0, 0,32, 8, 7);
       }
     if (button < 0 && CURSOR == 1)
       {
-      dia = dia -1;
+      CLS();
+      VPRINT(0,0,"POR NO PAGAR: 3 DIAS EN CARCEL Y DROGAS REQUISADAS");
+      WAIT(50);
+      dia = dia - 3;
+      int d;
+      for (d=0;d<8;++d)
+        {
+        stock[d] = 0;
+        }
       PRECIOS(bar);
       BARRIO();
       }
+  }
+}
+
+void hospital() {
+
+  int CURSOR = 0;
+
+  CopyToVRAM((uint) GUI,BASE10,96*8);
+  VPRINT (3,1, "Barrio: ");
+  VPRINT (11,1, bars[bar]);
+  VPRINT (19,1, "Dia: ");
+  VPRINTNUMBER(24,1,2, dia);
+  VPRINT (3,2, "Dinero: ");
+  VPRINTNUMBER (11,2, 5, dinero);
+  VPRINT (19,2, "Deuda: ");
+  VPRINTNUMBER(25,2,5, deuda);
+  VPRINT (3,3, "Vida: ");
+  VPRINTNUMBER(9,3,3, vida);
+
+  VPRINT(6,6,"RECUPERAR VIDA     200");
+  VPRINT(6,7,"BOTIQUIN PORTATIL  500");
+  VPRINT(6,8,"PLACE HOLDER      1000");
+
+  while(1)
+    {
+    HALT;
+    //------------------------- cursor keys
+    dir = STICK(CURSORKEYS);
+    button=STRIG(KEYBOARD_BUTTON);
+
+    PUTSPRITE(0, 40, posYHOSPI[CURSOR], 8, 7);
+    if (dir == 1){
+      CURSOR = CURSOR - 1;
+        if (CURSOR < 0){
+          CURSOR=0;
+        }
+        WAIT(10);
+        PUTSPRITE(0, 40, posYHOSPI[CURSOR], 8, 7);
+    }
+    if (dir == 5)
+    {
+      CURSOR = CURSOR + 1;
+        if (CURSOR > 2)
+        {
+          CURSOR=2;
+        }
+        WAIT(10);
+        PUTSPRITE(0, 40, posYHOSPI[CURSOR], 8, 7);
+    }
+    if (button < 0 && CURSOR == 2)
+    {
+      STOCK();
+    }
+    if (button < 0 && CURSOR == 1){
+      VIAJAR();
+    }
+    if (button < 0 && CURSOR == 0)
+    {
+    COMERCIAR();
+    }
+  }
+}
+
+void prestamista() {
+
+  int CURSOR = 0;
+
+  CopyToVRAM((uint) GUI,BASE10,96*8);
+  VPRINT (3,1, "Barrio: ");
+  VPRINT (11,1, bars[bar]);
+  VPRINT (19,1, "Dia: ");
+  VPRINTNUMBER(24,1,2, dia);
+  VPRINT (3,2, "Dinero: ");
+  VPRINTNUMBER (11,2, 5, dinero);
+  VPRINT (19,2, "Deuda: ");
+  VPRINTNUMBER(25,2,5, deuda);
+  VPRINT (3,3, "Vida: ");
+  VPRINTNUMBER(9,3,3, vida);
+
+  VPRINT(6,6,"PAGAR / PEDIR DEUDA");
+  VPRINT(6,7,"COMPRAR PISTOLA     500");
+  VPRINT(6,8,"COMPRAR MUNICION     50");
+  VPRINT(6,9,"TELEFONO DE SOPLON  500");
+  VPRINT(6,10,"GABARDINA+          500");
+
+  while(1)
+    {
+    HALT;
+    //------------------------- cursor keys
+    dir = STICK(CURSORKEYS);
+    button=STRIG(KEYBOARD_BUTTON);
+
+    PUTSPRITE(0, 40, posYHOSPI[CURSOR], 8, 7);
+    if (dir == 1){
+      CURSOR = CURSOR - 1;
+        if (CURSOR < 0){
+          CURSOR=0;
+        }
+        WAIT(10);
+        PUTSPRITE(0, 40, posYHOSPI[CURSOR], 8, 7);
+    }
+    if (dir == 5)
+    {
+      CURSOR = CURSOR + 1;
+        if (CURSOR > 2)
+        {
+          CURSOR=2;
+        }
+        WAIT(10);
+        PUTSPRITE(0, 40, posYHOSPI[CURSOR], 8, 7);
+    }
+    if (button < 0 && CURSOR == 2)
+    {
+      STOCK();
+    }
+    if (button < 0 && CURSOR == 1){
+      VIAJAR();
+    }
+    if (button < 0 && CURSOR == 0)
+    {
+    COMERCIAR();
+    }
   }
 }
 

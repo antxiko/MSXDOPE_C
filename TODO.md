@@ -16,9 +16,7 @@
 - Mecanica del rastro
     ¿armas y drogas baratas? (Navaja?)
 
-- Rutina del Hospital
-
-- Rutina del Prestamista
+- Retocar Prestamista
     - Variables de items (mochila, walki, pistola, ¿chaleco?)
     - Variable de municion
 
