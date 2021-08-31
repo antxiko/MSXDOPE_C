@@ -35,6 +35,7 @@ void hospital();
 void prestamista();
 void printCAMEL();
 char getR();
+void calcDeuda();
 
 // constants  ------------------------------------------------------------------
 const char bars[][15] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo","Hospital","Prestamista"};
@@ -44,6 +45,7 @@ const char posX[]={0x15,0x6C,0xAC};
 const char posXPOLI[]={0,57,120};
 const char posY[]={0x2E,0x36,0x3E,0x46,0x4E,0x56,0x5E,0x66};
 const char posYHOSPI[]={0x2E,0x36,0x3E,175};
+const char posYpresta[]={0x2E,0x36,0x3E,0x46,0x4E,175};
 
 const int disp[][8] = {
   { 9, 12, 18, 30,105, 280, 1010, 2100},
@@ -68,12 +70,14 @@ int precioBARRIO[] = { 0, 0, 0, 0, 0, 0, 0, 0};
 
 int dia = 31;
 int dinero = 3000;
+int t;
 int deuda = 3000;
 int vida = 100;
 int bar = 0;
 char SEED;
 int vidaJonki;
 int vidaPoli;
+int municion;
 
 boolean pistola = false;
 boolean botiquin = false;
@@ -658,6 +662,7 @@ void main(void)
   dinero = 3000;
   deuda = 3000;
   vida = 100;
+  municion = 0;
   pistola = false;
   botiquin = false;
 
@@ -946,9 +951,7 @@ void VIAJAR()
       }
       bar = CURSOR;
       dia = dia - 1;
-      int t;
-      t = ((deuda/100)*3);
-      deuda = (deuda + t);
+      calcDeuda();
       //inicializamos el stock del camello
       int a;
         for (a=0;a<8;++a)
@@ -1044,6 +1047,7 @@ void JONKI () {
         VPRINT(0,0,"CONSIGUES ESCAPAR");
         WAIT(50);
         dia = dia -1;
+        calcDeuda();
         PRECIOS(bar);
         BARRIO();
         }
@@ -1052,6 +1056,7 @@ void JONKI () {
       VPRINT(0,0,"NO ESCAPAS, MOJADA DEL JONKI");
       WAIT(50);
       vida = vida -50;
+      calcDeuda();
       PRECIOS(bar);
       BARRIO();
       }
@@ -1076,9 +1081,7 @@ void JONKI () {
     dinero = dinero + d;
     stock[rr] = stock[rr] + r;
     dia = dia -1;
-    int t;
-    t = ((deuda/100)*3);
-    deuda = (deuda + t);
+    calcDeuda();
     WAIT(100);
     PRECIOS(bar);
     BARRIO();
@@ -1103,9 +1106,7 @@ void JONKI () {
       dinero = dinero + d;
       stock[rr] = stock[rr] + r;
       dia = dia -1;
-      int t;
-      t = ((deuda/100)*3);
-      deuda = (deuda + t);
+      calcDeuda();
       WAIT(100);
       PRECIOS(bar);
       BARRIO();
@@ -1172,6 +1173,7 @@ void POLICIA() {
           VPRINT(0,0,"LLEVAS PISTOLA Y GANAS");
           dia = dia -1;
           PRECIOS(bar);
+          calcDeuda();
           WAIT(50);
           BARRIO();
           }
@@ -1182,6 +1184,7 @@ void POLICIA() {
           WAIT(50);
           vida = vida - 50;
           dia = dia -1;
+          calcDeuda();
           PRECIOS(bar);
           BARRIO();
           }
@@ -1193,6 +1196,7 @@ void POLICIA() {
           WAIT(50);
           vida = vida - 50;
           dia = dia -1;
+          calcDeuda();
           PRECIOS(bar);
           BARRIO();
         }
@@ -1206,7 +1210,7 @@ void POLICIA() {
           CLS();
           VPRINT(0,0,"CONSIGUES ESCAPAR");
           WAIT(50);
-          dia = dia -1;
+          calcDeuda();
           PRECIOS(bar);
           BARRIO();
           }
@@ -1215,6 +1219,7 @@ void POLICIA() {
           CLS();
           VPRINT(0,0,"NO ESCAPAS, 3 DIAS EN LA CARCEL Y DROGA REQUISADA");
           WAIT(50);
+          calcDeuda();
           dia = dia - 3;
           int d;
           for (d=0;d<8;++d)
@@ -1278,6 +1283,7 @@ PUTSPRITE(0, 0,32, 8, 7);
       {
       dinero = dinero - rf;
       dia = dia -1;
+      calcDeuda();
       PRECIOS(bar);
       BARRIO();
       }
@@ -1286,6 +1292,7 @@ PUTSPRITE(0, 0,32, 8, 7);
       CLS();
       VPRINT(0,0,"POR NO PAGAR: 3 DIAS EN CARCEL Y DROGAS REQUISADAS");
       WAIT(50);
+      calcDeuda();
       dia = dia - 3;
       int d;
       for (d=0;d<8;++d)
@@ -1377,7 +1384,6 @@ void hospital() {
 void prestamista() {
 
   int CURSOR = 0;
-
   CopyToVRAM((uint) GUI,BASE10,96*8);
   VPRINT (3,1, "Barrio: ");
   VPRINT (11,1, bars[bar]);
@@ -1389,12 +1395,16 @@ void prestamista() {
   VPRINTNUMBER(25,2,5, deuda);
   VPRINT (3,3, "Vida: ");
   VPRINTNUMBER(9,3,3, vida);
+  VPRINT (6,22,"VIAJAR");
 
   VPRINT(6,6,"PAGAR / PEDIR DEUDA");
   VPRINT(6,7,"COMPRAR PISTOLA     500");
-  VPRINT(6,8,"COMPRAR MUNICION     50");
-  VPRINT(6,9,"TELEFONO DE SOPLON  500");
-  VPRINT(6,10,"GABARDINA+          500");
+  VPRINT(6,8,"TELEFONO DE SOPLON  500");
+  VPRINT(6,9,"GABARDINA+          500");
+  VPRINT(6,10,"COMPRAR MUNICION     50");
+
+  VPRINT(6,15,"MUNICION:");
+  VPRINTNUMBER(15,15,2,municion);
 
   while(1)
     {
@@ -1403,35 +1413,61 @@ void prestamista() {
     dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
 
-    PUTSPRITE(0, 40, posYHOSPI[CURSOR], 8, 7);
+    PUTSPRITE(0, 40, posYpresta[CURSOR], 8, 7);
+    if (dir == 3 && CURSOR == 0)
+    {
+      deuda = deuda + 100;
+      dinero = dinero + 100;
+      VPRINTNUMBER(25,2,5, deuda);
+      VPRINTNUMBER (11,2, 5, dinero);
+      WAIT(10);
+    }
+    if (dir == 7 && CURSOR == 0 && dinero > 100)
+    {
+      if (deuda < 100){
+        dinero = dinero - deuda;
+        deuda = 0;
+      }
+      if (deuda > 100)
+      {
+        dinero = dinero -100;
+        deuda = deuda - 100;
+      }
+      VPRINTNUMBER(25,2,5, deuda);
+      VPRINTNUMBER (11,2, 5, dinero);
+      WAIT(10);
+    }
+    
     if (dir == 1){
       CURSOR = CURSOR - 1;
         if (CURSOR < 0){
           CURSOR=0;
         }
         WAIT(10);
-        PUTSPRITE(0, 40, posYHOSPI[CURSOR], 8, 7);
+        PUTSPRITE(0, 40, posYpresta[CURSOR], 8, 7);
     }
     if (dir == 5)
     {
       CURSOR = CURSOR + 1;
-        if (CURSOR > 2)
+        if (CURSOR > 5)
         {
-          CURSOR=2;
+          CURSOR=5;
         }
         WAIT(10);
-        PUTSPRITE(0, 40, posYHOSPI[CURSOR], 8, 7);
+        PUTSPRITE(0, 40, posYpresta[CURSOR], 8, 7);
     }
-    if (button < 0 && CURSOR == 2)
+    if (button < 0 && CURSOR == 4 && dinero > 50)
     {
-      STOCK();
+      dinero = dinero - 50;
+      municion = municion + 1;
+      VPRINTNUMBER(11,2, 5, dinero);
+      VPRINTNUMBER(15,15,2,municion);
+      WAIT(10);
     }
-    if (button < 0 && CURSOR == 1){
-      VIAJAR();
-    }
-    if (button < 0 && CURSOR == 0)
+    
+    if (button < 0 && CURSOR == 5)
     {
-    COMERCIAR();
+    VIAJAR();
     }
   }
 }
@@ -1592,4 +1628,8 @@ int ran100() {
   return a;
 }
 
-
+void calcDeuda() {
+  int t;
+  t = ((deuda / 100)*3);
+  deuda = deuda + t;
+}
