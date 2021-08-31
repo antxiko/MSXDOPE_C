@@ -43,7 +43,7 @@ const char diasSEMANA[][15] = {"Lunes","Martes","Miercoles","Jueves","Viernes","
 const char posX[]={0x15,0x6C,0xAC};
 const char posXPOLI[]={0,57,120};
 const char posY[]={0x2E,0x36,0x3E,0x46,0x4E,0x56,0x5E,0x66};
-const char posYHOSPI[]={0x2E,0x36,0x3E};
+const char posYHOSPI[]={0x2E,0x36,0x3E,175};
 
 const int disp[][8] = {
   { 9, 12, 18, 30,105, 280, 1010, 2100},
@@ -76,6 +76,7 @@ int vidaJonki;
 int vidaPoli;
 
 boolean pistola = false;
+boolean botiquin = false;
 
 
 const unsigned char TILESET_FONT[]={
@@ -658,6 +659,7 @@ void main(void)
   deuda = 3000;
   vida = 100;
   pistola = false;
+  botiquin = false;
 
   setSprites8x8Patterns();
   initSprites();
@@ -1311,10 +1313,11 @@ void hospital() {
   VPRINTNUMBER(25,2,5, deuda);
   VPRINT (3,3, "Vida: ");
   VPRINTNUMBER(9,3,3, vida);
+  VPRINT (6,22,"VIAJAR");
 
-  VPRINT(6,6,"RECUPERAR VIDA     200");
-  VPRINT(6,7,"BOTIQUIN PORTATIL  500");
-  VPRINT(6,8,"PLACE HOLDER      1000");
+  VPRINT(6,6,"CURAR 10 DE VIDA   30");
+  VPRINT(6,7,"CURAR 100 DE VIDA 250");
+  VPRINT(6,8,"BOTIQUIN PORTATIL 500");
 
   while(1)
     {
@@ -1335,23 +1338,38 @@ void hospital() {
     if (dir == 5)
     {
       CURSOR = CURSOR + 1;
-        if (CURSOR > 2)
+        if (CURSOR > 3)
         {
-          CURSOR=2;
+          CURSOR=3;
         }
         WAIT(10);
         PUTSPRITE(0, 40, posYHOSPI[CURSOR], 8, 7);
     }
-    if (button < 0 && CURSOR == 2)
+    if (button < 0 && CURSOR == 0 && vida < 100 && dinero > 30)
     {
-      STOCK();
+      vida = vida + 10;
+      dinero = dinero - 30;
+      VPRINTNUMBER (11,2, 5, dinero);
+      VPRINTNUMBER(9,3,3, vida);
+      WAIT(10);
     }
-    if (button < 0 && CURSOR == 1){
+    if (button < 0 && CURSOR == 1 && vida < 100 && dinero > 250)
+    {
+      dinero = dinero - 250;
+      vida = 100;
+      VPRINTNUMBER (11,2, 5, dinero);
+      VPRINTNUMBER(9,3,3, vida);
+      WAIT(10);
+    }
+    if (button < 0 && CURSOR == 2 && botiquin == false && dinero > 500)
+    {
+      dinero = dinero - 500;
+      botiquin = true;
+      VPRINTNUMBER (11,2, 5, dinero);
+    }
+    if (button < 0 && CURSOR == 3)
+    {
       VIAJAR();
-    }
-    if (button < 0 && CURSOR == 0)
-    {
-    COMERCIAR();
     }
   }
 }
