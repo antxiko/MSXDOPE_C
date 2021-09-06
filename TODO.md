@@ -14,18 +14,10 @@
     - ¿En que barrio puedo pillar barato X?
 
 - Mecanica del rastro
-    ¿armas y drogas baratas? (Navaja?)
+    - ¿armas y drogas baratas? (Navaja?)
+    - drogas adulteradas, compras x pero pierdes algunas por rata
 
 - Retocar Prestamista
-    - Variables de items (mochila, walki, pistola, ¿chaleco?)
-    - Variable de municion
-
-- Rutina de Overflow o Underflow de alguna droga.
-
-- Actualizar de eventos durante el viaje.
-
-- Mecanica de compraventa
-    - Depurar y afinar los precios aleatorios por Barrio.
 
 - Graficos
     ALL OF THEM
