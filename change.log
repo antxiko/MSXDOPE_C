@@ -1,3 +1,10 @@
+6/9/21
+    - Retocada la funcion de precios con un rango y aleatoriedad mejor.
+    - Retocado under y Overflow
+    - Introducido dia de la semana en la fecha en preparacion para el rastro
+    - Implementada la deteccion de si hay rastro en el barrio el dia dado.
+    
+
 2/9/21
     - Funcion global para el stock del camello.
     - Underflow (droga random al 2X)
