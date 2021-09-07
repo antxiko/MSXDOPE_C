@@ -40,6 +40,7 @@ char getR();
 void calcDeuda();
 void stockCamello();
 void diaSemana();
+void rastro();
 
 
 // constants  ------------------------------------------------------------------
@@ -89,6 +90,7 @@ boolean pistola = false;
 boolean botiquin = false;
 boolean soplon = false;
 boolean mochila = false;
+boolean rastroOk = false;
 
 
 
@@ -678,6 +680,7 @@ void main(void)
   botiquin = false;
   soplon = false;
   mochila = false;
+  rastroOk = false;
 
   setSprites8x8Patterns();
   initSprites();
@@ -755,12 +758,18 @@ void BARRIO()
   
   if (fecha == rastroDia[bar]){
     VPRINT(16,18,"RASTRO");
+    rastroOk = true;
+  }
+  else {
+    rastroOk = false;
   }
   
   DRUGS ();
   char cr = 15;
   int b = bar;
   int c;
+  int ras = 0;
+
   for (c = 0; c < 8; ++c)
   {
   VPRINTNUMBER(15,6+c,5,precioBARRIO[c]);
@@ -778,9 +787,11 @@ void BARRIO()
     
     if (dir == 1){
       PUTSPRITE(0, 120, 142, 8, 7);
+      ras = 1;
     }
     if (dir == 5){
       PUTSPRITE(0, posX[CURSOR], 174, 8, 7);
+      ras = 0;
     }
     if (dir == 3){
       CURSOR = CURSOR + 1;
@@ -800,14 +811,18 @@ void BARRIO()
         WAIT(10);
         PUTSPRITE(0, posX[CURSOR], 174, 8, 7);
     }
-    if (button < 0 && CURSOR == 2)
+    if (button < 0 && rastroOk == true && ras == 1)
+    {
+    rastro();
+    }
+    if (button < 0 && CURSOR == 2 && ras == 0)
     {
       STOCK();
     }
-    if (button < 0 && CURSOR == 1){
+    if (button < 0 && CURSOR == 1 && ras == 0){
       VIAJAR();
     }
-    if (button < 0 && CURSOR == 0)
+    if (button < 0 && CURSOR == 0 && ras == 0)
     {
     COMERCIAR();
     }
@@ -1774,5 +1789,23 @@ void diaSemana(){
   }
 }
 
+void rastro() {
+  CLS();
+  CopyToVRAM((uint) GUI,BASE10,96*8);
+  VPRINT (4,8,"ESTAS EN EL RASTRO, PAVO");
+  WAIT(50);
 
+  while(1)
+    {
+    HALT;
+    dir = STICK(CURSORKEYS);
+    
+    button=STRIG(KEYBOARD_BUTTON);
 
+    if (button < 0)
+    {
+      CLS();
+      BARRIO();
+    }
+  }
+}
