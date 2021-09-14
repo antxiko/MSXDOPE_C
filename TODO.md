@@ -13,8 +13,7 @@
     - ¿Es el vendedor del barrio un secreta?
     - ¿En que barrio puedo pillar barato X?
 
-- Mecanica del rastro
-    - ¿armas y drogas baratas? (Navaja?)
+- Retocar mecanica del rastro
     - drogas adulteradas, compras x pero pierdes algunas por rata
 
 - Retocar Prestamista

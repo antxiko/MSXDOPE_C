@@ -30,13 +30,16 @@ void VIAJAR();
 void COMERCIAR();
 void JONKI();
 void POLICIA();
+void pijo();
 void PRECIOS(int barrio);
+void SOBORNO();
 void hospital();
 void prestamista();
 void underflow();
 void overflow();
 void printCAMEL();
 char getR();
+int ran100();
 void calcDeuda();
 void stockCamello();
 void diaSemana();
@@ -52,6 +55,7 @@ const char posXPOLI[]={0,57,120};
 const char posY[]={0x2E,0x36,0x3E,0x46,0x4E,0x56,0x5E,0x66};
 const char posYHOSPI[]={0x2E,0x36,0x3E,175};
 const char posYpresta[]={0x2E,0x36,0x3E,0x46,0x4E,175};
+const char posYrastro[]={0x2E,0x36,0x3E,175};
 const int rastroDia[] = {2,1,0,4,3,5};
 
 const int disp[][8] = {
@@ -87,10 +91,13 @@ int municion;
 int fecha;
 
 boolean pistola = false;
+boolean navaja = false;
+boolean cadena = false;
 boolean botiquin = false;
 boolean soplon = false;
 boolean mochila = false;
 boolean rastroOk = false;
+
 
 
 
@@ -676,6 +683,8 @@ void main(void)
   deuda = 3000;
   vida = 100;
   municion = 0;
+  navaja = false;
+  cadena = false;
   pistola = false;
   botiquin = false;
   soplon = false;
@@ -713,6 +722,7 @@ void main(void)
     CLS();
     PRECIOS(bar);
     stockCamello();
+    pijo();
     BARRIO();
     } 
   }
@@ -720,6 +730,7 @@ void main(void)
 
 void BARRIO()
 {
+  pijo();
   if (bar == 6){
     hospital();
   }
@@ -779,13 +790,11 @@ void BARRIO()
     while(1)
     {
     HALT;
-    //------------------------- cursor keys
     dir = STICK(CURSORKEYS);
-    
     button=STRIG(KEYBOARD_BUTTON);
 
     
-    if (dir == 1){
+    if (dir == 1 && rastroOk == true){
       PUTSPRITE(0, 120, 142, 8, 7);
       ras = 1;
     }
@@ -1790,22 +1799,255 @@ void diaSemana(){
 }
 
 void rastro() {
-  CLS();
-  CopyToVRAM((uint) GUI,BASE10,96*8);
-  VPRINT (4,8,"ESTAS EN EL RASTRO, PAVO");
-  WAIT(50);
 
+  int rd = ((ran100()*7)/100);
+  int rc = ((ran100()*10)/100);
+  int pdr = ((disp[bar][rd])/2);
+  if (rc == 0)
+  {
+    rc = 1;
+  }
+  int CURSOR = 0;
+  CopyToVRAM((uint) GUI,BASE10,96*8);
+  VPRINT (3,1, "Barrio: ");
+  VPRINT (11,1, bars[bar]);
+  VPRINT (19,1, "Dia: ");
+  VPRINTNUMBER(24,1,2, dia);
+  VPRINT (3,2, "Dinero: ");
+  VPRINTNUMBER (11,2, 5, dinero);
+  VPRINT (19,2, "Deuda: ");
+  VPRINTNUMBER(25,2,5, deuda);
+  VPRINT (3,3, "Vida: ");
+  VPRINTNUMBER(9,3,3, vida);
+  VPRINT (6,22,"VIAJAR");
+
+  VPRINT(6,6,"NAVAJA OXIDADA      100");
+  VPRINT(6,7,"CADENAS DE MOTO     200");
+  VPRINT(6,8,drugs[rd]);
+  VPRINTNUMBER (20,8,1,rc);
+  VPRINTNUMBER (24,8,5,pdr);
+
+  PUTSPRITE(0, 40, posYpresta[CURSOR], 8, 7);
+  while(1)
+    {
+    HALT;
+    //------------------------- cursor keys
+    dir = STICK(CURSORKEYS);
+    button=STRIG(KEYBOARD_BUTTON);
+
+    
+    
+    if (dir == 1){
+      CURSOR = CURSOR - 1;
+        if (CURSOR < 0){
+          CURSOR=0;
+        }
+        WAIT(10);
+        PUTSPRITE(0, 40, posYrastro[CURSOR], 8, 7);
+    }
+    if (dir == 5)
+    {
+      CURSOR = CURSOR + 1;
+        if (CURSOR > 3)
+        {
+          CURSOR=3;
+        }
+        WAIT(10);
+        PUTSPRITE(0, 40, posYrastro[CURSOR], 8, 7);
+    }
+
+    if (button < 0 && CURSOR == 1)
+    {
+      WAIT(10);
+    }
+
+    if (button < 0 && CURSOR == 2)
+    {
+      WAIT(10);
+    }
+    
+    if (button < 0 && CURSOR == 3)
+    {
+    VIAJAR();
+    }
+  }
+}
+
+void pijo() {
+  CLS();
+  int s;
+  for (s=0; s<8; ++s)
+  {
+    stock[s] = 0;
+  }
+  CURSOR = 0;
+  int cur = 0;
+  int pijoDroga = ((ran100()*8)/100);
+  VPRINT(0,0,"APARECE UN PIJO CON MONAZO");
+  VPRINT(0,1,"QUIERE");
+  VPRINT(7,1,drugs[pijoDroga]);
+  VPRINT(0,3,"LE VENDES A PRECIO PREMIUM?");
+  VPRINT(1,4,"SI");
+  VPRINT(4,4,"NO");
+  VPRINT(7,4,"UNA HOSTIA Y PALANTE");
+  PUTSPRITE(0, cur,32, 8, 7);
   while(1)
     {
     HALT;
     dir = STICK(CURSORKEYS);
-    
     button=STRIG(KEYBOARD_BUTTON);
-
-    if (button < 0)
+    if (dir == 3)
     {
-      CLS();
-      BARRIO();
+      CURSOR = CURSOR + 1;
+      cur = cur +24;
+        if (CURSOR > 2)
+        {
+          CURSOR=2;
+          cur = 48;
+        }
+        WAIT(10);
+        PUTSPRITE(0, cur, 32, 8, 7);
     }
+    if (dir == 7)
+    {
+      CURSOR = CURSOR - 1;
+      cur=cur-24;
+        if (CURSOR < 0)
+        {
+          CURSOR=0;
+          cur = 0;
+        }
+        WAIT(10);
+        PUTSPRITE(0, cur, 32, 8, 7);
+    }
+    if (button < 0 && CURSOR == 0)
+      {
+      if (stock[pijoDroga] > 0) 
+        {
+        int precioPijo;
+        precioPijo = (precioBARRIO[pijoDroga] * 4) * stock[pijoDroga];
+        dinero = dinero + precioPijo;
+        stock[pijoDroga] = 0;
+        VPRINT(0,6,"SE LA VENDES POR ");
+        VPRINTNUMBER(17,6,5,precioPijo);
+        dia = dia -1;
+        calcDeuda();
+        stockCamello();
+        WAIT(100);
+        PRECIOS(bar);
+        diaSemana();
+        BARRIO();
+        }
+      else 
+        {
+        CLS();
+        VPRINT(0,0,"NO TIENES STOCK DE ELLA");
+        VPRINT(0,1,"TE INTENTA PEGAR");
+        WAIT(50);
+        r = ran100();
+          if (r<50)
+            { //MENOS DE 50 GANAS AL PIJO
+            CLS();
+            VPRINT(0,0,"LE PEGAS UNA HOSTIA AL PIJO");
+            r = (ran100()*4);
+            VPRINT(0,1,"LE ROBAS ");
+            VPRINTNUMBER(10,1,4,r);
+            dinero = dinero + r;
+            dia = dia -1;
+            calcDeuda();
+            stockCamello();
+            WAIT(100);
+            PRECIOS(bar);
+            diaSemana();
+            BARRIO();
+            }
+          else 
+          { 
+          CLS();
+          VPRINT(0,0,"EL PIJO TE ARREA");
+          WAIT(50);
+          dia = dia -1;
+          vida = vida -20;
+          PRECIOS(bar);
+          calcDeuda();
+          stockCamello();
+          diaSemana();
+          BARRIO();
+         }
+        }
+      }
+    if (button < 0 && CURSOR == 1)
+      {
+      CLS();
+      VPRINT(0,0,"NO LE VENDES"); 
+      VPRINT(0,0,"TE INTENTA PEGAR");
+      WAIT(50);
+      r = ran100();
+          if (r<50)
+            { //MENOS DE 50 GANAS AL PIJO
+            CLS();
+            VPRINT(0,0,"LE PEGAS UNA HOSTIA AL PIJO");
+            r = (ran100()*4);
+            VPRINT(0,1,"LE ROBAS ");
+            VPRINTNUMBER(10,1,4,r);
+            dinero = dinero + r;
+            dia = dia -1;
+            calcDeuda();
+            stockCamello();
+            WAIT(100);
+            PRECIOS(bar);
+            diaSemana();
+            BARRIO();
+            }
+          else 
+          { 
+          CLS();
+          VPRINT(0,0,"EL PIJO TE ARREA");
+          WAIT(50);
+          dia = dia -1;
+          vida = vida -20;
+          PRECIOS(bar);
+          calcDeuda();
+          stockCamello();
+          diaSemana();
+          BARRIO();
+          }
+      }
+    if (button < 0 && CURSOR == 2)
+      {
+      CLS();
+      VPRINT(0,0,"LE VAS A SOLTAR UNA HOSTIA"); 
+      WAIT(50);
+      r = ran100();
+        if (r<50)
+          { //MENOS DE 50 GANAS AL PIJO
+          CLS();
+          VPRINT(0,0,"LE PEGAS UNA HOSTIA AL PIJO");
+          r = (ran100()*4);
+          VPRINT(0,1,"LE ROBAS ");
+          VPRINTNUMBER(10,1,4,r);
+          dinero = dinero + r;
+          dia = dia -1;
+          calcDeuda();
+          stockCamello();
+          WAIT(100);
+          PRECIOS(bar);
+          diaSemana();
+          BARRIO();
+          }
+        else 
+          { 
+          CLS();
+          VPRINT(0,0,"EL PIJO TE ARREA");
+          WAIT(50);
+          dia = dia -1;
+          vida = vida -20;
+          PRECIOS(bar);
+          calcDeuda();
+          stockCamello();
+          diaSemana();
+          BARRIO();
+          }
+      }
   }
 }
