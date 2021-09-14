@@ -22,7 +22,7 @@ void printTrig(signed char value);
 void setSprites8x8Patterns();
 void initSprites();
 
-
+void inicializar();
 void DRUGS();
 void BARRIO();
 void STOCK();
@@ -97,6 +97,7 @@ boolean botiquin = false;
 boolean soplon = false;
 boolean mochila = false;
 boolean rastroOk = false;
+boolean secretaPosible = false;
 
 
 
@@ -662,75 +663,15 @@ const char SPRITE_DATA8x8[]={
 
 void main(void)
 {
-  int s;
-  for (s=0; s<8; ++s){
-    stock[s] = 0;
-  }
-  //inicializamos el stock del camello
-      int a;
-        for (a=0;a<8;++a)
-          {
-         int b;
-         int c;
-          c = (ran100()/10);
-          b = ran100();
-          camello[a] = (b / camelloVAR[a]) + c;
-          }
- 
-  bar = 0;
-  dia = 31;
-  dinero = 3000;
-  deuda = 3000;
-  vida = 100;
-  municion = 0;
-  navaja = false;
-  cadena = false;
-  pistola = false;
-  botiquin = false;
-  soplon = false;
-  mochila = false;
-  rastroOk = false;
-
-  setSprites8x8Patterns();
-  initSprites();
- 
-  COLOR(15,1,1);
-  SCREEN(2);
-  
-  //copy to VRAM tileset,  gfx patterns y coloreh
-  CopyToVRAM((uint) TILESET_FONT,BASE12,255*8);
-  CopyToVRAM((uint) TILESET_FONT,BASE12+BANK1,255*8);
-  CopyToVRAM((uint) TILESET_FONT,BASE12+BANK2,255*8); 
-  
-  CopyToVRAM((uint) TILESET_COLOR,BASE11,255*8);
-  CopyToVRAM((uint) TILESET_COLOR,BASE11+BANK1,255*8);
-  CopyToVRAM((uint) TILESET_COLOR,BASE11+BANK2,255*8); 
-
-  CopyToVRAM((uint) INTRO,BASE10,96*8);
-
-  
-  while(1)
-    {
-    HALT;
-    dir = STICK(CURSORKEYS);
-    button=STRIG(KEYBOARD_BUTTON);
-    int fecharan;
-    fecharan = ((ran100()*7)/100);
-    fecha = fecharan;
-    if (button < 0)
-    {
-    CLS();
-    PRECIOS(bar);
-    stockCamello();
-    pijo();
-    BARRIO();
-    } 
-  }
+  inicializar(); 
 }
 
 void BARRIO()
 {
-  pijo();
+  if (dia < 21) 
+  {
+    secretaPosible = true;
+  }
   if (bar == 6){
     hospital();
   }
@@ -740,12 +681,14 @@ void BARRIO()
   if (vida<10){
     CLS();
     VPRINT(0,0,"GAMEOVER");
-    WAIT(50);
+    WAIT(500);
+    inicializar();
   }
   if (dia == 0 && deuda > 0){
     CLS();
     VPRINT(0,0,"GAMEOVER");
-    WAIT(50);
+    WAIT(500);
+    inicializar();
   }
   
   WAIT(15);
@@ -836,6 +779,74 @@ void BARRIO()
     COMERCIAR();
     }
   }
+}
+
+void inicializar() 
+{
+int s;
+  for (s=0; s<8; ++s){
+    stock[s] = 0;
+  }
+      int a;
+        for (a=0;a<8;++a)
+          {
+         int b;
+         int c;
+          c = (ran100()/10);
+          b = ran100();
+          camello[a] = (b / camelloVAR[a]) + c;
+          }
+ 
+  bar = 0;
+  dia = 31;
+  dinero = 3000;
+  deuda = 3000;
+  vida = 100;
+  municion = 0;
+  navaja = false;
+  cadena = false;
+  pistola = false;
+  botiquin = false;
+  soplon = false;
+  mochila = false;
+  rastroOk = false;
+  secretaPosible = false;
+
+  setSprites8x8Patterns();
+  initSprites();
+ 
+  COLOR(15,1,1);
+  SCREEN(2);
+  
+  //copy to VRAM tileset,  gfx patterns y coloreh
+  CopyToVRAM((uint) TILESET_FONT,BASE12,255*8);
+  CopyToVRAM((uint) TILESET_FONT,BASE12+BANK1,255*8);
+  CopyToVRAM((uint) TILESET_FONT,BASE12+BANK2,255*8); 
+  
+  CopyToVRAM((uint) TILESET_COLOR,BASE11,255*8);
+  CopyToVRAM((uint) TILESET_COLOR,BASE11+BANK1,255*8);
+  CopyToVRAM((uint) TILESET_COLOR,BASE11+BANK2,255*8); 
+
+  CopyToVRAM((uint) INTRO,BASE10,96*8);
+
+  while(1)
+    {
+    HALT;
+    dir = STICK(CURSORKEYS);
+    button=STRIG(KEYBOARD_BUTTON);
+    int fecharan;
+    fecharan = ((ran100()*7)/100);
+    fecha = fecharan;
+    if (button < 0)
+    {
+    CLS();
+    PRECIOS(bar);
+    stockCamello();
+    pijo();
+    BARRIO();
+    } 
+  }
+
 }
 
 void COMERCIAR()
@@ -2051,3 +2062,4 @@ void pijo() {
       }
   }
 }
+
