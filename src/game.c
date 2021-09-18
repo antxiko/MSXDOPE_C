@@ -23,6 +23,7 @@ void setSprites8x8Patterns();
 void initSprites();
 
 void inicializar();
+void menuPrincipal();
 void DRUGS();
 void BARRIO();
 void STOCK();
@@ -44,18 +45,20 @@ void calcDeuda();
 void stockCamello();
 void diaSemana();
 void rastro();
+void imprimeBarrio(int barrio, int barrioAhora);
 
-
-// constants  ------------------------------------------------------------------
-const char bars[][15] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo","Hospital","Prestamista"};
-const char drugs[][15] = {"Pegamento","Kifi","Hachis","Marihuana","Cocaina","MDMA", "LSD", "Kriptonita"};
-const char diasSEMANA[][15] = {"Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"};
+const char bilbao[8][15] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo","Hospital","Prestamista"};
+const char madrid[8][15] = {"Orcasitas","Villaverde","Valdemingomez","Fuenlabrada","Carabanchel","Moraleja","Hospital","Prestamista"};
+const char newyork[8][15] = {"Harlem","Soho","China Town","Jersey","Bronx","Central Park","Hospital","Prestamista"};
+const char drugs[8][15] = {"Pegamento","Kifi","Hachis","Marihuana","Cocaina","MDMA", "LSD", "Kriptonita"};
+const char diasSEMANA[7][15] = {"Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"};
 const char posX[]={0x15,0x6C,0xAC};
 const char posXPOLI[]={0,57,120};
 const char posY[]={0x2E,0x36,0x3E,0x46,0x4E,0x56,0x5E,0x66};
 const char posYHOSPI[]={0x2E,0x36,0x3E,175};
 const char posYpresta[]={0x2E,0x36,0x3E,0x46,0x4E,175};
 const char posYrastro[]={0x2E,0x36,0x3E,175};
+const char posXmenu[]={16,72,128};
 const int rastroDia[] = {2,1,0,4,3,5};
 
 const int disp[][8] = {
@@ -78,7 +81,6 @@ int stock[] = { 0, 0, 0, 0, 0, 0, 0, 0};
 int camello[] = { 0, 0, 0, 0, 0, 0, 0, 0};
 int precioTEMP[] = { 0, 0, 0, 0, 0, 0, 0, 0};
 int precioBARRIO[] = { 0, 0, 0, 0, 0, 0, 0, 0};
-
 int dia = 31;
 int dinero = 3000;
 int deuda = 3000;
@@ -89,6 +91,8 @@ int vidaJonki;
 int vidaPoli;
 int municion;
 int fecha;
+int barrioPartida;
+int randomSecreta;
 
 boolean pistola = false;
 boolean navaja = false;
@@ -98,6 +102,7 @@ boolean soplon = false;
 boolean mochila = false;
 boolean rastroOk = false;
 boolean secretaPosible = false;
+boolean haySecreta = false;
 
 
 
@@ -656,7 +661,7 @@ const char SPRITE_DATA8x8[]={
 16,56,84,254,84,16,56,0,
 16,56,124,254,254,16,56,0,
 0,0,0,24,24,0,0,0,
-255,255,255,231,231,255,255,255
+0,255,255,231,231,255,255,0
 };
 
 
@@ -666,12 +671,103 @@ void main(void)
   inicializar(); 
 }
 
+void inicializar() 
+{
+int s;
+  for (s=0; s<8; ++s){
+    stock[s] = 0;
+  }
+      int a;
+        for (a=0;a<8;++a)
+          {
+         int b;
+         int c;
+          c = (ran100()/10);
+          b = ran100();
+          camello[a] = (b / camelloVAR[a]) + c;
+          }
+  bar = 0;
+  dinero = 3000;
+  deuda = 3000;
+  vida = 100;
+  municion = 0;
+  navaja = false;
+  cadena = false;
+  pistola = false;
+  botiquin = false;
+  soplon = false;
+  mochila = false;
+  rastroOk = false;
+  secretaPosible = false;
+  haySecreta = false;
+
+  setSprites8x8Patterns();
+  initSprites();
+ 
+  COLOR(15,1,1);
+  SCREEN(2);
+  
+  //copy to VRAM tileset,  gfx patterns y coloreh
+  CopyToVRAM((uint) TILESET_FONT,BASE12,255*8);
+  CopyToVRAM((uint) TILESET_FONT,BASE12+BANK1,255*8);
+  CopyToVRAM((uint) TILESET_FONT,BASE12+BANK2,255*8); 
+  
+  CopyToVRAM((uint) TILESET_COLOR,BASE11,255*8);
+  CopyToVRAM((uint) TILESET_COLOR,BASE11+BANK1,255*8);
+  CopyToVRAM((uint) TILESET_COLOR,BASE11+BANK2,255*8); 
+
+  CopyToVRAM((uint) INTRO,BASE10,96*8);
+
+  while(1)
+    {
+    HALT;
+    dir = STICK(CURSORKEYS);
+    button=STRIG(KEYBOARD_BUTTON);
+    int fecharan;
+    fecharan = ((ran100()*7)/100);
+    fecha = fecharan;
+    if (button < 0)
+    {
+    CLS();
+    WAIT(10);
+    menuPrincipal();
+    } 
+  }
+
+}
+
 void BARRIO()
 {
-  if (dia < 21) 
+  switch (barrioPartida)
+  {
+  case 1:
+  if (dia < 29) 
   {
     secretaPosible = true;
   }
+    break;
+  case 2:
+  if (dia < 86) 
+  {
+    secretaPosible = true;
+  }
+  break;
+  case 3:
+  if (dia < 360) 
+  {
+    secretaPosible = true;
+  }
+  default:
+    break;
+  }
+  if (soplon == true && haySecreta == true){
+    CLS();
+    VPRINT(0,0,"CUIDADO, HAY SECRETA!");
+    VPRINT(0,1,"NO COMERCIES!");
+    soplon = false;
+    WAIT(50);
+  }
+
   if (bar == 6){
     hospital();
   }
@@ -690,20 +786,32 @@ void BARRIO()
     WAIT(500);
     inicializar();
   }
+  int randomSecreta;
+  randomSecreta = (ran100()/10);
+  if (randomSecreta >8){
+    haySecreta = true;
+  }
   
   WAIT(15);
   int CURSOR = 0;
   CopyToVRAM((uint) GUI,BASE10,96*8);
   VPRINT (3,1, "Barrio: ");
-  VPRINT (11,1, bars[bar]);
+  imprimeBarrio(bar,barrioPartida);
   VPRINT (19,1, "Dia: ");
-  VPRINTNUMBER(24,1,2, dia);
+  VPRINTNUMBER(24,1,3, dia);
   VPRINT (3,2, "Dinero: ");
   VPRINTNUMBER (11,2, 5, dinero);
   VPRINT (19,2, "Deuda: ");
   VPRINTNUMBER(25,2,5, deuda);
   VPRINT (3,3, "Vida: ");
   VPRINTNUMBER(9,3,3, vida);
+
+  if (haySecreta == true) {
+    VPRINT(0,0,"secreta");
+  }
+  else {
+    VPRINT(0,0,"no secreta");
+  }
 
   VPRINT (4,22, "COMERCIAR");
   VPRINT (15,22,"VIAJAR");
@@ -781,72 +889,68 @@ void BARRIO()
   }
 }
 
-void inicializar() 
-{
-int s;
-  for (s=0; s<8; ++s){
-    stock[s] = 0;
-  }
-      int a;
-        for (a=0;a<8;++a)
-          {
-         int b;
-         int c;
-          c = (ran100()/10);
-          b = ran100();
-          camello[a] = (b / camelloVAR[a]) + c;
-          }
- 
-  bar = 0;
-  dia = 31;
-  dinero = 3000;
-  deuda = 3000;
-  vida = 100;
-  municion = 0;
-  navaja = false;
-  cadena = false;
-  pistola = false;
-  botiquin = false;
-  soplon = false;
-  mochila = false;
-  rastroOk = false;
-  secretaPosible = false;
+void menuPrincipal(){
 
-  setSprites8x8Patterns();
-  initSprites();
- 
-  COLOR(15,1,1);
-  SCREEN(2);
-  
-  //copy to VRAM tileset,  gfx patterns y coloreh
-  CopyToVRAM((uint) TILESET_FONT,BASE12,255*8);
-  CopyToVRAM((uint) TILESET_FONT,BASE12+BANK1,255*8);
-  CopyToVRAM((uint) TILESET_FONT,BASE12+BANK2,255*8); 
-  
-  CopyToVRAM((uint) TILESET_COLOR,BASE11,255*8);
-  CopyToVRAM((uint) TILESET_COLOR,BASE11+BANK1,255*8);
-  CopyToVRAM((uint) TILESET_COLOR,BASE11+BANK2,255*8); 
-
-  CopyToVRAM((uint) INTRO,BASE10,96*8);
-
-  while(1)
+ CURSOR = 0;
+ CLS();
+ VPRINT(8,0,"MENU PRINCIPAL");
+ VPRINT(8,8,"MSX DOPE WARS");
+ VPRINT(9,13,"ELIGE CIUDAD");
+ VPRINT(3,15,"BILBAO MADRID NEW YORK");
+ PUTSPRITE(0, posXmenu[CURSOR], 118, 8, 7);
+    while(1)
     {
     HALT;
+    
     dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
-    int fecharan;
-    fecharan = ((ran100()*7)/100);
-    fecha = fecharan;
-    if (button < 0)
+
+    if (dir == 3){
+      CURSOR = CURSOR + 1;
+        if (CURSOR == 3){
+          CURSOR=2;
+        }
+        WAIT(10);
+        PUTSPRITE(0, posXmenu[CURSOR], 118, 8, 7);
+    }
+    if (dir == 7)
     {
-    CLS();
+      CURSOR = CURSOR - 1;
+        if (CURSOR < 0)
+        {
+          CURSOR=0;
+        }
+        WAIT(10);
+        PUTSPRITE(0, posXmenu[CURSOR], 118, 8, 7);
+    }
+    if (button < 0 && CURSOR == 0)
+    {
+    WAIT(10);
+    dia = 31;
+    barrioPartida = 1;
     PRECIOS(bar);
     stockCamello();
-    pijo();
     BARRIO();
-    } 
+    }
+    if (button < 0 && CURSOR == 1)
+    {
+    WAIT(10);
+    dia = 90;
+    barrioPartida = 2;
+    PRECIOS(bar);
+    stockCamello();
+    BARRIO();
+    }
+    if (button < 0 && CURSOR == 2)
+    {
+    WAIT(10);
+    dia = 365;
+    barrioPartida = 3;
+    PRECIOS(bar);
+    stockCamello();
+    BARRIO();
+    }
   }
-
 }
 
 void COMERCIAR()
@@ -869,13 +973,30 @@ void COMERCIAR()
   while(1)
     {
     HALT;
-    //------------------------- cursor keys
     dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
     PUTSPRITE(0,20,posY[CURSOR], 8, 7);
     if (dir == 3){
       if (stock[CURSOR] > 0)
       {
+        if (haySecreta == true){
+          CLS();
+          VPRINT(0,0,"ES UN SECRETA!");
+          VPRINT(0,0,"DROGAS REQUISADAS Y 3 DIAS DE CARCEL");
+          WAIT(50);
+          calcDeuda();
+          dia = dia - 3;
+          haySecreta = false;
+          int d;
+          for (d=0;d<8;++d)
+            {
+            stock[d] = 0;
+            }
+          PRECIOS(bar);
+          stockCamello();
+          diaSemana();
+          BARRIO();
+        }
         stock[CURSOR] = stock[CURSOR]- 1;
         camello[CURSOR] = camello[CURSOR] +1;
         dinero = (dinero + precioBARRIO[CURSOR]);
@@ -888,6 +1009,24 @@ void COMERCIAR()
     if (dir == 7){
       if (camello[CURSOR] > 0 && dinero>precioBARRIO[CURSOR])
       {
+        if (haySecreta == true){
+          CLS();
+          VPRINT(0,0,"ES UN SECRETA!");
+          VPRINT(0,0,"DROGAS REQUISADAS Y 3 DIAS DE CARCEL");
+          WAIT(50);
+          calcDeuda();
+          dia = dia - 3;
+          haySecreta = false;
+          int d;
+          for (d=0;d<8;++d)
+            {
+            stock[d] = 0;
+            }
+          PRECIOS(bar);
+          stockCamello();
+          diaSemana();
+          BARRIO();
+        }
         stock[CURSOR] = stock[CURSOR]+ 1;
         camello[CURSOR] = camello[CURSOR] -1;
         dinero = (dinero - precioBARRIO[CURSOR]);
@@ -958,7 +1097,21 @@ void VIAJAR()
   int d;
   for (d = 0; d < 6; ++d)
   {
-  VPRINT(10,6+d,bars[d]);
+  
+  switch (barrioPartida)
+  {
+  case 1:
+    VPRINT(10,6+d,bilbao[d]);
+    break;
+  case 2:
+    VPRINT(10,6+d,madrid[d]);
+    break;
+  case 3:
+    VPRINT (10,6+d,newyork[d]);
+    break;
+  default:
+    break;
+  }
   }
   VPRINT(10,12,"Hospital");
   VPRINT(10,13,"Prestamista");
@@ -1420,7 +1573,7 @@ void hospital() {
 
   CopyToVRAM((uint) GUI,BASE10,96*8);
   VPRINT (3,1, "Barrio: ");
-  VPRINT (11,1, bars[bar]);
+  imprimeBarrio(bar,barrioPartida);
   VPRINT (19,1, "Dia: ");
   VPRINTNUMBER(24,1,2, dia);
   VPRINT (3,2, "Dinero: ");
@@ -1495,7 +1648,7 @@ void prestamista() {
   int CURSOR = 0;
   CopyToVRAM((uint) GUI,BASE10,96*8);
   VPRINT (3,1, "Barrio: ");
-  VPRINT (11,1, bars[bar]);
+  imprimeBarrio(bar,barrioPartida);
   VPRINT (19,1, "Dia: ");
   VPRINTNUMBER(24,1,2, dia);
   VPRINT (3,2, "Dinero: ");
@@ -1821,7 +1974,7 @@ void rastro() {
   int CURSOR = 0;
   CopyToVRAM((uint) GUI,BASE10,96*8);
   VPRINT (3,1, "Barrio: ");
-  VPRINT (11,1, bars[bar]);
+  imprimeBarrio(bar,barrioPartida);
   VPRINT (19,1, "Dia: ");
   VPRINTNUMBER(24,1,2, dia);
   VPRINT (3,2, "Dinero: ");
@@ -2063,3 +2216,20 @@ void pijo() {
   }
 }
 
+void imprimeBarrio(int barrio,int barrioAhora) {
+  
+  switch (barrioAhora)
+  {
+  case 1:
+    VPRINT (11,1,bilbao[barrio]);
+    break;
+  case 2:
+    VPRINT (11,1,madrid[barrio]);
+    break;
+  case 3:
+    VPRINT (11,1,newyork[barrio]);
+    break;
+  default:
+    break;
+  }
+}

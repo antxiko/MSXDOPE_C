@@ -1,9 +1,16 @@
+18/9/21
+    - Implementado Secreta a partir del decimo dia
+        - a partir de ahi, cada dia con un random 
+        de 1/10 el comerciante será Secreta
+    - implementado soplon.
+        - Si compramos el walki al prestamista, el 
+        soplon nos avisara si en el bario hay Secreta
 15/9/21
     - Implementadas 3 ciudades y 3 duraciones de partida:
         - Bilbao 31 dias
         - Madrid 90 dias
         - New York 365 dias
-        
+
 14/9/21
     - Introducido al pijo y sus mecanicas
     - funcion de inicializar, para volver del GAME OVER
