@@ -1,3 +1,7 @@
+19/9/21
+    Implementada la calidad de la droga del rastro.
+        Embeces va a estar adulterada.
+        
 18/9/21
     - Implementado Secreta a partir del decimo dia
         - a partir de ahi, cada dia con un random 
@@ -5,6 +9,9 @@
     - implementado soplon.
         - Si compramos el walki al prestamista, el 
         soplon nos avisara si en el bario hay Secreta
+    - Integrado el pijo, estaba hecho pero fuera del loop
+    - Se pueden comprar en el rastro.
+
 15/9/21
     - Implementadas 3 ciudades y 3 duraciones de partida:
         - Bilbao 31 dias

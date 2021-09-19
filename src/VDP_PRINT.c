@@ -49,8 +49,6 @@ void VPRINT(char column, char line, char* text)
   VPrintString(vaddr, text);
 }
 
-
-
 /* =============================================================================
  Prints a string at the indicated screen position
  Inputs:
@@ -82,7 +80,6 @@ void VPrintString(unsigned int vaddr, char* text)
   //while(*(text)) VPOKE(vaddr++,*(text++));
   CopyToVRAM((unsigned int) text, vaddr, length);
 }
-
 
 
 /* =============================================================================
@@ -196,42 +193,3 @@ $Num4:
   
 __endasm;
 }
-
-
-/*void VPRINTO(byte column, byte line, char* text, char offset)
-{
-  uint vaddr = GetVRAMaddressByPosition(column, line);
-  vpokeBlockOffset(vaddr, text,offset);
-}*/
-
-
-/*void vpokeBlockOffset(uint vaddr, char* text, char offset)
-{
-  while(*(text)) vpoke(vaddr++,*(text++)+offset);
-}*/
-
-
-
-/* =============================================================================
- muestra un texto en la pantalla de varias lineas separadas con \n
- ejem: vPrintLines(10,10,"ARE YOU SURE\nYOU WANT TO\nDELETE SONG?");
-============================================================================= */
-/*void vprintLines(byte column, byte line, char* text)
-{
-  char character;
-  uint vaddr = GetVRAMaddressByPosition(column, line);
-  while(*(text))
-  {
-    character=*(text++);
-    if (character=='\n') //return
-    {
-      //next line
-      line++;
-      vaddr = GetVRAMaddressByPosition(0, line);
-    }
-    else{
-      vpoke(vaddr++,character);
-    }    
-  }
-  return;
-}*/

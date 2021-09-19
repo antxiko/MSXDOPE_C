@@ -15,10 +15,9 @@ void LOCATE(char x, char y);
 char PEEK(uint address);
 void POKE(uint address, char value);
 void CLS();
-void VPRINT(char column, char line, char* text);  //print in screen 1 or 2
+void VPRINT(char column, char line, char* text);
 void VPOKEARRAY(uint vaddr, char* text);
 void VPRINTNUMBER(char column, char line, char pLength, uint pNumber);
-void printTrig(signed char value);
 void setSprites8x8Patterns();
 void initSprites();
 
@@ -46,6 +45,7 @@ void stockCamello();
 void diaSemana();
 void rastro();
 void imprimeBarrio(int barrio, int barrioAhora);
+void imprimeIcono(char column, char line, char caracter);
 
 const char bilbao[8][15] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo","Hospital","Prestamista"};
 const char madrid[8][15] = {"Orcasitas","Villaverde","Valdemingomez","Fuenlabrada","Carabanchel","Moraleja","Hospital","Prestamista"};
@@ -661,7 +661,7 @@ const char SPRITE_DATA8x8[]={
 16,56,84,254,84,16,56,0,
 16,56,124,254,254,16,56,0,
 0,0,0,24,24,0,0,0,
-0,255,255,231,231,255,255,0
+0,4,254,255,255,254,4,0
 };
 
 
@@ -806,12 +806,6 @@ void BARRIO()
   VPRINT (3,3, "Vida: ");
   VPRINTNUMBER(9,3,3, vida);
 
-  if (haySecreta == true) {
-    VPRINT(0,0,"secreta");
-  }
-  else {
-    VPRINT(0,0,"no secreta");
-  }
 
   VPRINT (4,22, "COMERCIAR");
   VPRINT (15,22,"VIAJAR");
@@ -893,6 +887,8 @@ void menuPrincipal(){
 
  CURSOR = 0;
  CLS();
+ 
+ imprimeIcono(0,0,0);
  VPRINT(8,0,"MENU PRINCIPAL");
  VPRINT(8,8,"MSX DOPE WARS");
  VPRINT(9,13,"ELIGE CIUDAD");
@@ -1868,12 +1864,6 @@ void VPRINTNUMBER(char column, char line, char pLength, uint pNumber)
  }
 }
 
-void printTrig(signed char value)
-{
-  if(value<0) VPRINT(0,15,"-1");
-  else VPRINT(0,15," 0");
-}
-
 void setSprites8x8Patterns()
 {
   HALT;
@@ -1917,7 +1907,7 @@ int ran100() {
 
 void calcDeuda() {
   int t;
-  t = ((deuda / 100)*3);
+  t = ((deuda / 100)*4);
   deuda = deuda + t;
 }
 
@@ -1966,7 +1956,8 @@ void rastro() {
 
   int rd = ((ran100()*7)/100);
   int rc = ((ran100()*10)/100);
-  int pdr = ((disp[bar][rd])/2);
+  int pdr = ((disp[bar][rd])/3);
+  int rdc = 0;
   if (rc == 0)
   {
     rc = 1;
@@ -2020,20 +2011,59 @@ void rastro() {
         PUTSPRITE(0, 40, posYrastro[CURSOR], 8, 7);
     }
 
-    if (button < 0 && CURSOR == 1)
+    if (button < 0 && CURSOR == 0 && dinero > 100 && navaja == false)
     {
+      dinero = dinero - 100;
+      navaja = true;
+      VPRINTNUMBER (11,2, 5, dinero);
       WAIT(10);
     }
 
-    if (button < 0 && CURSOR == 2)
+    if (button < 0 && CURSOR == 1 && dinero > 200 && cadena == false)
     {
+      dinero = dinero - 200;
+      cadena = true;
+      VPRINTNUMBER (11,2, 5, dinero);
       WAIT(10);
     }
     
+    if (dir == 7 && CURSOR == 2 && dinero > pdr && rc > 0)
+    {
+      dinero = dinero - pdr;
+      stock[rd] = stock[rd] + 1;
+      rc = rc - 1;
+      VPRINTNUMBER (20,8,1,rc);
+      VPRINTNUMBER (11,2, 5, dinero);
+      rdc = rdc + 1;
+      WAIT(10);
+    }
     if (button < 0 && CURSOR == 3)
     {
-    VIAJAR();
-    }
+    CLS();
+      int ranCalidad;
+      int ranCC;
+      ranCalidad = ran100();
+      if (ranCalidad > 60)
+      {
+        VPRINT(0,0,"DEL ");
+        VPRINT(5,0,drugs[rd]);
+        VPRINT(14,0," QUE HAS COMPRADO");
+        VPRINT(0,1,"TE HAN TANGADO");
+        ranCC = ((ran100()*rc)/100);
+        if (ranCC == 0) {
+          ranCC =1;
+        }
+        VPRINTNUMBER(15,1,1,ranCC);
+        VPRINT (0,3,"ESTABA CORTADA CON HARINA");
+        stock[rd] = stock[rd] - ranCC;
+        WAIT(50);
+        VIAJAR();
+      } 
+      else 
+      {
+        VIAJAR();
+      }
+    } 
   }
 }
 
@@ -2233,3 +2263,23 @@ void imprimeBarrio(int barrio,int barrioAhora) {
     break;
   }
 }
+
+void imprimeIcono(char column, char line, char caracter){
+  int x;
+  int y;
+  char c;
+  uint vaddr = BASE10 + (line*32) + column; 
+  
+  for (x=0; x<2; ++x)
+  {
+    for (y=0; y<2; ++y)
+    {
+    VPOKE(vaddr+(x*32)+(y+32),caracter+c);
+    c = c +1;
+    } 
+  }
+  
+
+}
+
+
