@@ -1,11 +1,15 @@
+20/9/21
+    Arreglados bugs de secreta varios.
+    Añadida funcion para imprimir iconos de 2x2.
+
 19/9/21
     Implementada la calidad de la droga del rastro.
         Embeces va a estar adulterada.
-        
+
 18/9/21
     - Implementado Secreta a partir del decimo dia
         - a partir de ahi, cada dia con un random 
-        de 1/10 el comerciante será Secreta
+        de 2/10 el comerciante será Secreta
     - implementado soplon.
         - Si compramos el walki al prestamista, el 
         soplon nos avisara si en el bario hay Secreta

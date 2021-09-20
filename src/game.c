@@ -44,6 +44,7 @@ void calcDeuda();
 void stockCamello();
 void diaSemana();
 void rastro();
+void checkSecreta();
 void imprimeBarrio(int barrio, int barrioAhora);
 void imprimeIcono(char column, char line, char caracter);
 
@@ -741,19 +742,19 @@ void BARRIO()
   switch (barrioPartida)
   {
   case 1:
-  if (dia < 29) 
+  if (dia < 20) 
   {
     secretaPosible = true;
   }
     break;
   case 2:
-  if (dia < 86) 
+  if (dia < 80) 
   {
     secretaPosible = true;
   }
   break;
   case 3:
-  if (dia < 360) 
+  if (dia < 355) 
   {
     secretaPosible = true;
   }
@@ -765,7 +766,7 @@ void BARRIO()
     VPRINT(0,0,"CUIDADO, HAY SECRETA!");
     VPRINT(0,1,"NO COMERCIES!");
     soplon = false;
-    WAIT(50);
+    WAIT(200);
   }
 
   if (bar == 6){
@@ -785,11 +786,6 @@ void BARRIO()
     VPRINT(0,0,"GAMEOVER");
     WAIT(500);
     inicializar();
-  }
-  int randomSecreta;
-  randomSecreta = (ran100()/10);
-  if (randomSecreta >8){
-    haySecreta = true;
   }
   
   WAIT(15);
@@ -888,7 +884,7 @@ void menuPrincipal(){
  CURSOR = 0;
  CLS();
  
- imprimeIcono(0,0,0);
+ //imprimeIcono(0,0,0);
  VPRINT(8,0,"MENU PRINCIPAL");
  VPRINT(8,8,"MSX DOPE WARS");
  VPRINT(9,13,"ELIGE CIUDAD");
@@ -964,7 +960,7 @@ void COMERCIAR()
   {
   VPRINTNUMBER(21,6+c,5,precioBARRIO[c]);
   }
-  WAIT(50);
+  WAIT(10);
 
   while(1)
     {
@@ -979,7 +975,7 @@ void COMERCIAR()
           CLS();
           VPRINT(0,0,"ES UN SECRETA!");
           VPRINT(0,0,"DROGAS REQUISADAS Y 3 DIAS DE CARCEL");
-          WAIT(50);
+          WAIT(200);
           calcDeuda();
           dia = dia - 3;
           haySecreta = false;
@@ -1009,7 +1005,7 @@ void COMERCIAR()
           CLS();
           VPRINT(0,0,"ES UN SECRETA!");
           VPRINT(0,0,"DROGAS REQUISADAS Y 3 DIAS DE CARCEL");
-          WAIT(50);
+          WAIT(200);
           calcDeuda();
           dia = dia - 3;
           haySecreta = false;
@@ -1111,7 +1107,7 @@ void VIAJAR()
   }
   VPRINT(10,12,"Hospital");
   VPRINT(10,13,"Prestamista");
-  WAIT(50);
+  WAIT(10);
 
   while(1)
     {
@@ -1149,6 +1145,7 @@ void VIAJAR()
         CLS();
         PRECIOS(bar);
         diaSemana();
+        checkSecreta();
         BARRIO();
         WAIT(50);
       }
@@ -1156,21 +1153,21 @@ void VIAJAR()
       {
         CLS();
         VPRINT(0,0,"JONKI!!!!");
-        WAIT(50);
+        WAIT(100);
         JONKI();
       }
       if (r<81 && r>70)
       {
         CLS();
         VPRINT(0,0,"POLICIA!!!!");
-        WAIT(50);
+        WAIT(100);
         POLICIA();
       }
       if (r<91 && r>80)
       {
         CLS();
         VPRINT(0,0,"OVERFLOW");
-        WAIT(50);
+        WAIT(100);
         bar = CURSOR;
         dia = dia - 1;
         calcDeuda();
@@ -1178,13 +1175,14 @@ void VIAJAR()
         PRECIOS(bar);
         overflow();
         diaSemana();
+        checkSecreta();
         BARRIO();
       }
       if (r>90)
       {
         CLS();
         VPRINT(0,0,"UNDERFLOW");
-        WAIT(50);
+        WAIT(100);
         bar = CURSOR;
         dia = dia - 1;
         calcDeuda();
@@ -1192,6 +1190,7 @@ void VIAJAR()
         PRECIOS(bar);
         underflow();
         diaSemana();
+        checkSecreta();
         BARRIO();
       }
     }
@@ -1279,23 +1278,25 @@ void JONKI () {
         if (r<75){ //75% Y SE CONSIGUE ESCAPAR
         CLS();
         VPRINT(0,0,"CONSIGUES ESCAPAR");
-        WAIT(50);
+        WAIT(200);
         dia = dia -1;
         calcDeuda();
         stockCamello();
         PRECIOS(bar);
         diaSemana();
+        checkSecreta();
         BARRIO();
         }
     else { //25% PARA QUE EL JONKI GANE
       CLS();
       VPRINT(0,0,"NO ESCAPAS, MOJADA DEL JONKI");
-      WAIT(50);
+      WAIT(200);
       vida = vida -50;
       calcDeuda();
       stockCamello();
       PRECIOS(bar);
       diaSemana();
+      checkSecreta();
       BARRIO();
       }
     }
@@ -1321,9 +1322,10 @@ void JONKI () {
     dia = dia -1;
     calcDeuda();
     stockCamello();
-    WAIT(100);
+    WAIT(200);
     PRECIOS(bar);
     diaSemana();
+    checkSecreta();
     BARRIO();
   }
   else { // NO TENEMOS PISTOLA, PELEAMOS
@@ -1348,21 +1350,23 @@ void JONKI () {
       dia = dia -1;
       calcDeuda();
       stockCamello();
-      WAIT(100);
+      WAIT(200);
       PRECIOS(bar);
       diaSemana();
+      checkSecreta();
       BARRIO();
     }
     else { //MAS DE 50 EL JONKI TE ACUCHILLA
       CLS();
       VPRINT(0,0,"EL JONKI TE PEGA UNA MOJADA");
-      WAIT(50);
+      WAIT(200);
       dia = dia -1;
       vida = vida -50;
       PRECIOS(bar);
       calcDeuda();
       stockCamello();
       diaSemana();
+      checkSecreta();
       BARRIO();
     }
   }
@@ -1419,21 +1423,23 @@ void POLICIA() {
           PRECIOS(bar);
           calcDeuda();
           stockCamello();
-          WAIT(50);
+          WAIT(200);
           diaSemana();
+          checkSecreta();
           BARRIO();
           }
         if (r>74)
           { //PIERDES AL 25%
           CLS();
           VPRINT(0,0,"LLEVAS PISTOLA Y PIERDES");
-          WAIT(50);
+          WAIT(200);
           vida = vida - 50;
           dia = dia -1;
           calcDeuda();
           stockCamello();
           PRECIOS(bar);
           diaSemana();
+          checkSecreta();
           BARRIO();
           }
         }
@@ -1441,13 +1447,14 @@ void POLICIA() {
           CLS();
           VPRINT(0,0,"NO LLEVAS PISTOLA, TE PEGA UN TIRO");
           VPRINT(0,1,"PERO CONSIGUES ESCAPAR");
-          WAIT(50);
+          WAIT(200);
           vida = vida - 50;
           dia = dia -1;
           calcDeuda();
           stockCamello();
           PRECIOS(bar);
           diaSemana();
+          checkSecreta();
           BARRIO();
         }
       }
@@ -1459,18 +1466,19 @@ void POLICIA() {
           { //50% Y SE CONSIGUE ESCAPAR
           CLS();
           VPRINT(0,0,"CONSIGUES ESCAPAR");
-          WAIT(50);
+          WAIT(200);
           calcDeuda();
           stockCamello();
           PRECIOS(bar);
           diaSemana();
+          checkSecreta();
           BARRIO();
           }
         else 
           { //50% PARA QUE EL POLI GANE Y ATAQUE
           CLS();
           VPRINT(0,0,"NO ESCAPAS, 3 DIAS EN LA CARCEL Y DROGA REQUISADA");
-          WAIT(50);
+          WAIT(200);
           calcDeuda();
           dia = dia - 3;
           int d;
@@ -1481,6 +1489,7 @@ void POLICIA() {
           PRECIOS(bar);
           stockCamello();
           diaSemana();
+          checkSecreta();
           BARRIO();
           }
       }
@@ -1541,13 +1550,14 @@ PUTSPRITE(0, 0,32, 8, 7);
       stockCamello();
       PRECIOS(bar);
       diaSemana();
+      checkSecreta();
       BARRIO();
       }
     if (button < 0 && CURSOR == 1)
       {
       CLS();
       VPRINT(0,0,"POR NO PAGAR: 3 DIAS EN CARCEL Y DROGAS REQUISADAS");
-      WAIT(50);
+      WAIT(200);
       calcDeuda();
       stockCamello();
       dia = dia - 3;
@@ -1558,6 +1568,7 @@ PUTSPRITE(0, 0,32, 8, 7);
         }
       PRECIOS(bar);
       diaSemana();
+      checkSecreta();
       BARRIO();
       }
   }
@@ -2056,7 +2067,7 @@ void rastro() {
         VPRINTNUMBER(15,1,1,ranCC);
         VPRINT (0,3,"ESTABA CORTADA CON HARINA");
         stock[rd] = stock[rd] - ranCC;
-        WAIT(50);
+        WAIT(200);
         VIAJAR();
       } 
       else 
@@ -2127,9 +2138,10 @@ void pijo() {
         dia = dia -1;
         calcDeuda();
         stockCamello();
-        WAIT(100);
+        WAIT(200);
         PRECIOS(bar);
         diaSemana();
+        checkSecreta();
         BARRIO();
         }
       else 
@@ -2137,7 +2149,7 @@ void pijo() {
         CLS();
         VPRINT(0,0,"NO TIENES STOCK DE ELLA");
         VPRINT(0,1,"TE INTENTA PEGAR");
-        WAIT(50);
+        WAIT(100);
         r = ran100();
           if (r<50)
             { //MENOS DE 50 GANAS AL PIJO
@@ -2150,22 +2162,24 @@ void pijo() {
             dia = dia -1;
             calcDeuda();
             stockCamello();
-            WAIT(100);
+            WAIT(200);
             PRECIOS(bar);
             diaSemana();
+            checkSecreta();
             BARRIO();
             }
           else 
           { 
           CLS();
           VPRINT(0,0,"EL PIJO TE ARREA");
-          WAIT(50);
+          WAIT(100);
           dia = dia -1;
           vida = vida -20;
           PRECIOS(bar);
           calcDeuda();
           stockCamello();
           diaSemana();
+          checkSecreta();
           BARRIO();
          }
         }
@@ -2188,22 +2202,24 @@ void pijo() {
             dia = dia -1;
             calcDeuda();
             stockCamello();
-            WAIT(100);
+            WAIT(200);
             PRECIOS(bar);
             diaSemana();
+            checkSecreta();
             BARRIO();
             }
           else 
           { 
           CLS();
           VPRINT(0,0,"EL PIJO TE ARREA");
-          WAIT(50);
+          WAIT(100);
           dia = dia -1;
           vida = vida -20;
           PRECIOS(bar);
           calcDeuda();
           stockCamello();
           diaSemana();
+          checkSecreta();
           BARRIO();
           }
       }
@@ -2224,25 +2240,35 @@ void pijo() {
           dia = dia -1;
           calcDeuda();
           stockCamello();
-          WAIT(100);
+          WAIT(200);
           PRECIOS(bar);
           diaSemana();
+          checkSecreta();
           BARRIO();
           }
         else 
           { 
           CLS();
           VPRINT(0,0,"EL PIJO TE ARREA");
-          WAIT(50);
+          WAIT(100);
           dia = dia -1;
           vida = vida -20;
           PRECIOS(bar);
           calcDeuda();
           stockCamello();
           diaSemana();
+          checkSecreta();
           BARRIO();
           }
       }
+  }
+}
+
+void checkSecreta(){
+   int randomSecreta;
+  randomSecreta = (ran100()/10);
+  if (randomSecreta > 8 && secretaPosible == true){
+    haySecreta = true;
   }
 }
 
