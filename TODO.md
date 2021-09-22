@@ -1,5 +1,3 @@
-- Hacer una funcion para la impresion del barrio dependiendo de la ciudad
-
 - Hacer una funcion global de gestion de deuda, precios y dia de la semana
 
 - Retocar Mecanica del Jonki.
@@ -18,7 +16,7 @@
     - Mecanica del soplon: ¿En que barrio puedo pillar barato X?
     - ¿Mecanijas "jugables" en pelea?
         - ¿ritmo? ¿jan, ken, poi? ¿kill bill?
-        
+
 - Graficos
     ALL OF THEM
 
