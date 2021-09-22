@@ -47,9 +47,12 @@ void rastro();
 void checkSecreta();
 void imprimeBarrio(int barrio, int barrioAhora);
 void imprimeIcono(char column, char line, char caracter);
+void testBarra();
+void testTrack();
+void testPunteria();
 
 const char bilbao[8][15] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo","Hospital","Prestamista"};
-const char madrid[8][15] = {"Orcasitas","Villaverde","Valdemingomez","Fuenlabrada","Carabanchel","Moraleja","Hospital","Prestamista"};
+const char madrid[8][15] = {"Orcasitas","Villaverde","Valdemingomez","San Cristobal","Carabanchel","Moraleja","Hospital","Prestamista"};
 const char newyork[8][15] = {"Harlem","Soho","China Town","Jersey","Bronx","Central Park","Hospital","Prestamista"};
 const char drugs[8][15] = {"Pegamento","Kifi","Hachis","Marihuana","Cocaina","MDMA", "LSD", "Kriptonita"};
 const char diasSEMANA[7][15] = {"Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"};
@@ -655,8 +658,8 @@ char dir=0;
 signed char button=0;
 const char sprcol[8]={12,2,3,7,6,8,9,14};
 const char SPRITE_DATA8x8[]={
-60,66,165,129,165,153,66,60,
-60,126,219,255,255,219,102,60,
+24,60,126,255,60,60,60,60,
+24,36,66,145,137,66,36,24,
 108,254,254,254,124,56,16,0,
 16,56,124,254,124,56,16,0,
 16,56,84,254,84,16,56,0,
@@ -739,6 +742,7 @@ int s;
 
 void BARRIO()
 {
+  testPunteria();
   switch (barrioPartida)
   {
   case 1:
@@ -1544,14 +1548,32 @@ PUTSPRITE(0, 0,32, 8, 7);
     }
     if (button < 0 && CURSOR == 0)
       {
-      dinero = dinero - rf;
-      dia = dia -1;
-      calcDeuda();
-      stockCamello();
-      PRECIOS(bar);
-      diaSemana();
-      checkSecreta();
-      BARRIO();
+        if (dinero < rf)
+        {
+          CLS();
+          VPRINT(0,0,"NO TIENES DINERO, MANGUAN");
+          VPRINT(0,1,"EL POLI TE REVIENTA A PORRAZOS");
+          VPRINT(0,2,"3 DIAS DE CARCEL, DROGAS REQUISADAS");
+          WAIT(200);
+          dia = dia - 3;
+          calcDeuda();
+          stockCamello();
+          PRECIOS(bar);
+          diaSemana();
+          checkSecreta();
+          BARRIO();
+        }
+          CLS();
+          VPRINT(0,0,"LE PAGAS GUSTOSO");
+          WAIT(100);
+          dinero = dinero - rf;
+          dia = dia -1;
+          calcDeuda();
+          stockCamello();
+          PRECIOS(bar);
+          diaSemana();
+          checkSecreta();
+          BARRIO();      
       }
     if (button < 0 && CURSOR == 1)
       {
@@ -2308,4 +2330,176 @@ void imprimeIcono(char column, char line, char caracter){
 
 }
 
+void testBarra(){
+  CLS();
+  boolean subiendo = true;
+  VPRINT(0,0,"XXXXXXXXOOOOXXXXXXXX");
+  PUTSPRITE(0, 0, 8, 3, 0);
+  int x;
+  while(1)
+    {
+      if (subiendo == true){
+      PUTSPRITE(0, x, 8, 3, 0);
+      x = x+4;
+      button=STRIG(KEYBOARD_BUTTON);
+      if (button == -1) {
+        if (x < 64 || x > 96) 
+        {
+        VPRINT(0, 3, "     ");
+        VPRINT(0, 3, "FUERA");
+        VPRINTNUMBER(0, 4, 3, x);
+        WAIT(10);
+      } else {
+        VPRINT(0, 3, "      ");
+        VPRINT(0, 3, "DENTRO");
+        VPRINTNUMBER(0, 4, 3, x);
+        WAIT(10);
+      }
+      }
+      WAIT(1);
+      if (x == 152)
+        {
+        subiendo = false;
+        }
+      }
+      else
+      {
+      PUTSPRITE(0, x, 8, 3, 0);
+      x = x -4;
+      button=STRIG(KEYBOARD_BUTTON);
+      if (button == -1) {
+        if (x < 64 || x > 96) 
+        {
+        VPRINT(0, 3, "     ");
+        VPRINT(0, 3, "FUERA");
+        VPRINTNUMBER(0, 4, 3, x);
+        WAIT(10);
+      } else {
+        VPRINT(0, 3, "      ");
+        VPRINT(0, 3, "DENTRO");
+        VPRINTNUMBER(0, 4, 3, x);
+        WAIT(10);
+      }
+      }
+      WAIT(1);
+      if (x == 0)
+        {
+        subiendo = true;
+        }
+      }
+    }
+}
 
+void testTrack(){
+  CLS();
+  VPRINT(0,0,"CORRE FORREST!");
+  int total = 0;
+  int medio = 0;
+  int jonka = 0;
+  int jonkb = 0;
+  while(1)
+  {
+  dir = STICK(CURSORKEYS);
+    if (dir == 3 && medio == 0)
+    {
+      medio = medio + 1;
+      WAIT(3);
+    }
+    if (dir == 7 && medio == 1)
+    {
+      medio = medio + 1;
+      WAIT(3);
+    }
+    if (dir == 7 && medio == 0)
+    {
+      WAIT(3);
+    }
+    if (medio == 2)
+    {
+      total = total + 1;
+      medio = 0;
+      VPRINTNUMBER(0,1,2,total);
+      WAIT(3);
+    }
+    jonka = jonka + 1;
+    if (jonka > 12)
+    {
+      jonkb = jonkb +1;
+      jonka = 0;
+    }
+    VPRINT(0,2,"EL JONKI");
+    VPRINTNUMBER(0,3,2,jonkb);
+  }
+}
+
+void testPunteria(){
+  CLS();
+  int curX = 0;
+  int curY = 0;
+  int polX = 0;
+  int polY = 0;
+  VPRINT(0,0,"OOOO");
+  VPRINT(0,1,"OOOO");
+  VPRINT(0,2,"OOOO");
+  VPRINT(0,3,"OOOO");
+  PUTSPRITE(0, curX, curY, 5, 1);
+  while(1)
+    {
+    button = button=STRIG(KEYBOARD_BUTTON);
+    dir = STICK(CURSORKEYS);
+    if (dir == 1 && curY > 0)
+    {
+      curY=curY -4;
+    }
+    if (dir == 2 && curY > 0 && curX < 200)
+    {
+      curY=curY -4;
+      curX=curX +4;
+    }
+    if (dir == 3 && curX < 200)
+    {
+      curX=curX +4;
+    }
+    if (dir == 4 && curY >= 0 && curX < 200 && curY < 180)
+    {
+      curY=curY +4;
+      curX=curX +4;
+    }
+    if (dir == 5 && curY < 180)
+    {
+      curY=curY +4;
+    }
+    if (dir == 6 && curY >= 0 && curX > 0 && curY < 180)
+    {
+      curY=curY +4;
+      curX=curX -4;
+    }
+    if (dir == 7 && curX > 0)
+    {
+      curX=curX -4;
+    }
+    if (dir == 8 && curY > 0 && curX > 0)
+    {
+      curY=curY -4;
+      curX=curX -4;
+    }
+    if (button == -1) {
+        if (curX >= 0 && curX <= 28 && curY >= 0 && curY <= 28) 
+        {
+        VPRINT(0, 6, "DENTRO");
+        VPRINTNUMBER(0, 7, 3, curX);
+        VPRINTNUMBER(0, 8, 3, curY);
+        WAIT(10);
+        }
+        else
+        {
+        VPRINT(0, 6, "FUERA");
+        VPRINTNUMBER(0, 7, 3, curX);
+        VPRINTNUMBER(0, 8, 3, curY);
+        WAIT(10);  
+        }
+    }
+    PUTSPRITE(0,curX,curY,5,1);
+    WAIT(1);
+  }
+}
