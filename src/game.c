@@ -47,9 +47,9 @@ void rastro();
 void checkSecreta();
 void imprimeBarrio(int barrio, int barrioAhora);
 void imprimeIcono(char column, char line, char caracter);
-void testBarra();
-void testTrack();
-void testPunteria();
+void peleaBarra(int tipo);
+void intentarEscapar(int tipo);
+void disparos();
 
 const char bilbao[8][15] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo","Hospital","Prestamista"};
 const char madrid[8][15] = {"Orcasitas","Villaverde","Valdemingomez","San Cristobal","Carabanchel","Moraleja","Hospital","Prestamista"};
@@ -742,7 +742,7 @@ int s;
 
 void BARRIO()
 {
-  testPunteria();
+  
   switch (barrioPartida)
   {
   case 1:
@@ -1246,7 +1246,6 @@ void JONKI () {
   while(1)
     {
     HALT;
-    //------------------------- cursor keys
     dir = STICK(CURSORKEYS);
     
     button=STRIG(KEYBOARD_BUTTON);
@@ -1278,35 +1277,11 @@ void JONKI () {
     if (button < 0 && CURSOR == 1)
     {
       CLS();
-      r = ran100();
-        if (r<75){ //75% Y SE CONSIGUE ESCAPAR
-        CLS();
-        VPRINT(0,0,"CONSIGUES ESCAPAR");
-        WAIT(200);
-        dia = dia -1;
-        calcDeuda();
-        stockCamello();
-        PRECIOS(bar);
-        diaSemana();
-        checkSecreta();
-        BARRIO();
-        }
-    else { //25% PARA QUE EL JONKI GANE
-      CLS();
-      VPRINT(0,0,"NO ESCAPAS, MOJADA DEL JONKI");
-      WAIT(200);
-      vida = vida -50;
-      calcDeuda();
-      stockCamello();
-      PRECIOS(bar);
-      diaSemana();
-      checkSecreta();
-      BARRIO();
-      }
+      intentarEscapar(0);
     }
   }
 
-  if (pistola == true){ // SI TENEMOS PISTOLA LE DISPARAMOS Y GANAMOS
+  if (pistola == true){
     CLS();
     VPRINT(0,0,"DISPARAS LA JONKI");
     r = ((ran100()*4)/100);
@@ -1332,47 +1307,8 @@ void JONKI () {
     checkSecreta();
     BARRIO();
   }
-  else { // NO TENEMOS PISTOLA, PELEAMOS
-    r = ran100();
-    if (r<50){ //MENOS DE 50 GANAS AL JONKI
-      CLS();
-      VPRINT(0,0,"LE PEGAS UNA HOSTIA AL JONKI");
-      r = ((ran100()*4)/100);
-      if (r<1){ r = 1;
-      }
-      int rr = ((ran100()*7)/100);
-      int d = ran100();
-      VPRINT(0,1,"EL JONKI LLEVA ");
-      VPRINTNUMBER(15,1,1,r);
-      VPRINT(17,1,"DE ");
-      VPRINT(21,1,drugs[rr]);
-      VPRINT(0,2,"Y ");
-      VPRINTNUMBER(2,2,3,d);
-      VPRINT(6,2,"DE DINERO");
-      dinero = dinero + d;
-      stock[rr] = stock[rr] + r;
-      dia = dia -1;
-      calcDeuda();
-      stockCamello();
-      WAIT(200);
-      PRECIOS(bar);
-      diaSemana();
-      checkSecreta();
-      BARRIO();
-    }
-    else { //MAS DE 50 EL JONKI TE ACUCHILLA
-      CLS();
-      VPRINT(0,0,"EL JONKI TE PEGA UNA MOJADA");
-      WAIT(200);
-      dia = dia -1;
-      vida = vida -50;
-      PRECIOS(bar);
-      calcDeuda();
-      stockCamello();
-      diaSemana();
-      checkSecreta();
-      BARRIO();
-    }
+  else {
+    peleaBarra(1);
   }
 }
 
@@ -1417,85 +1353,20 @@ void POLICIA() {
       WAIT(50);
       if (pistola == true)
         {//CON PISTOLA
-        CLS();
-        int r = ran100();
-        if (r<75)
-          { //GANAS AL 75%
-          CLS();
-          VPRINT(0,0,"LLEVAS PISTOLA Y GANAS");
-          dia = dia -1;
-          PRECIOS(bar);
-          calcDeuda();
-          stockCamello();
-          WAIT(200);
-          diaSemana();
-          checkSecreta();
-          BARRIO();
-          }
-        if (r>74)
-          { //PIERDES AL 25%
-          CLS();
-          VPRINT(0,0,"LLEVAS PISTOLA Y PIERDES");
-          WAIT(200);
-          vida = vida - 50;
-          dia = dia -1;
-          calcDeuda();
-          stockCamello();
-          PRECIOS(bar);
-          diaSemana();
-          checkSecreta();
-          BARRIO();
-          }
+        VPRINT(0,0,"TIENES PISTOLA, DISPARAS");
+        WAIT(50);
+        disparos();
         }
         if (pistola == false){
           CLS();
-          VPRINT(0,0,"NO LLEVAS PISTOLA, TE PEGA UN TIRO");
-          VPRINT(0,1,"PERO CONSIGUES ESCAPAR");
-          WAIT(200);
-          vida = vida - 50;
-          dia = dia -1;
-          calcDeuda();
-          stockCamello();
-          PRECIOS(bar);
-          diaSemana();
-          checkSecreta();
-          BARRIO();
+          VPRINT(0,0,"NO LLEVAS PISTOLA, PELEAIS");
+          WAIT(50);
+          peleaBarra(2);
         }
       }
     if (button < 0 && CURSOR == 1)
       {
-      CLS();
-      int r = ran100();
-        if (r<50)
-          { //50% Y SE CONSIGUE ESCAPAR
-          CLS();
-          VPRINT(0,0,"CONSIGUES ESCAPAR");
-          WAIT(200);
-          calcDeuda();
-          stockCamello();
-          PRECIOS(bar);
-          diaSemana();
-          checkSecreta();
-          BARRIO();
-          }
-        else 
-          { //50% PARA QUE EL POLI GANE Y ATAQUE
-          CLS();
-          VPRINT(0,0,"NO ESCAPAS, 3 DIAS EN LA CARCEL Y DROGA REQUISADA");
-          WAIT(200);
-          calcDeuda();
-          dia = dia - 3;
-          int d;
-          for (d=0;d<8;++d)
-            {
-            stock[d] = 0;
-            }
-          PRECIOS(bar);
-          stockCamello();
-          diaSemana();
-          checkSecreta();
-          BARRIO();
-          }
+      intentarEscapar(1);
       }
     if (button < 0 && CURSOR == 2)
       {
@@ -2172,38 +2043,7 @@ void pijo() {
         VPRINT(0,0,"NO TIENES STOCK DE ELLA");
         VPRINT(0,1,"TE INTENTA PEGAR");
         WAIT(100);
-        r = ran100();
-          if (r<50)
-            { //MENOS DE 50 GANAS AL PIJO
-            CLS();
-            VPRINT(0,0,"LE PEGAS UNA HOSTIA AL PIJO");
-            r = (ran100()*4);
-            VPRINT(0,1,"LE ROBAS ");
-            VPRINTNUMBER(10,1,4,r);
-            dinero = dinero + r;
-            dia = dia -1;
-            calcDeuda();
-            stockCamello();
-            WAIT(200);
-            PRECIOS(bar);
-            diaSemana();
-            checkSecreta();
-            BARRIO();
-            }
-          else 
-          { 
-          CLS();
-          VPRINT(0,0,"EL PIJO TE ARREA");
-          WAIT(100);
-          dia = dia -1;
-          vida = vida -20;
-          PRECIOS(bar);
-          calcDeuda();
-          stockCamello();
-          diaSemana();
-          checkSecreta();
-          BARRIO();
-         }
+        peleaBarra(0);
         }
       }
     if (button < 0 && CURSOR == 1)
@@ -2211,77 +2051,15 @@ void pijo() {
       CLS();
       VPRINT(0,0,"NO LE VENDES"); 
       VPRINT(0,0,"TE INTENTA PEGAR");
-      WAIT(50);
-      r = ran100();
-          if (r<50)
-            { //MENOS DE 50 GANAS AL PIJO
-            CLS();
-            VPRINT(0,0,"LE PEGAS UNA HOSTIA AL PIJO");
-            r = (ran100()*4);
-            VPRINT(0,1,"LE ROBAS ");
-            VPRINTNUMBER(10,1,4,r);
-            dinero = dinero + r;
-            dia = dia -1;
-            calcDeuda();
-            stockCamello();
-            WAIT(200);
-            PRECIOS(bar);
-            diaSemana();
-            checkSecreta();
-            BARRIO();
-            }
-          else 
-          { 
-          CLS();
-          VPRINT(0,0,"EL PIJO TE ARREA");
-          WAIT(100);
-          dia = dia -1;
-          vida = vida -20;
-          PRECIOS(bar);
-          calcDeuda();
-          stockCamello();
-          diaSemana();
-          checkSecreta();
-          BARRIO();
-          }
+      WAIT(100);
+      peleaBarra(0);
       }
     if (button < 0 && CURSOR == 2)
       {
       CLS();
       VPRINT(0,0,"LE VAS A SOLTAR UNA HOSTIA"); 
       WAIT(50);
-      r = ran100();
-        if (r<50)
-          { //MENOS DE 50 GANAS AL PIJO
-          CLS();
-          VPRINT(0,0,"LE PEGAS UNA HOSTIA AL PIJO");
-          r = (ran100()*4);
-          VPRINT(0,1,"LE ROBAS ");
-          VPRINTNUMBER(10,1,4,r);
-          dinero = dinero + r;
-          dia = dia -1;
-          calcDeuda();
-          stockCamello();
-          WAIT(200);
-          PRECIOS(bar);
-          diaSemana();
-          checkSecreta();
-          BARRIO();
-          }
-        else 
-          { 
-          CLS();
-          VPRINT(0,0,"EL PIJO TE ARREA");
-          WAIT(100);
-          dia = dia -1;
-          vida = vida -20;
-          PRECIOS(bar);
-          calcDeuda();
-          stockCamello();
-          diaSemana();
-          checkSecreta();
-          BARRIO();
-          }
+      peleaBarra(0);
       }
   }
 }
@@ -2330,57 +2108,196 @@ void imprimeIcono(char column, char line, char caracter){
 
 }
 
-void testBarra(){
+void peleaBarra(int tipo)
+{
+  
+  int velocidad = 0;
+  int vidaRestar = 0;
+  if (tipo == 0)
+    {
+    velocidad = 4;
+    vidaRestar = 20;
+    }
+  if (tipo == 1)
+  {
+    velocidad = 3;
+    vidaRestar = 50;
+    }
+  else 
+    {
+    velocidad = 6;
+    vidaRestar = 60;
+    }
   CLS();
   boolean subiendo = true;
-  VPRINT(0,0,"XXXXXXXXOOOOXXXXXXXX");
-  PUTSPRITE(0, 0, 8, 3, 0);
+  VPRINT(6,10,"XXXXXXXXOOXXXXXXXX");
+  PUTSPRITE(0, 80, 88, 3, 0);
   int x;
   while(1)
     {
-      if (subiendo == true){
-      PUTSPRITE(0, x, 8, 3, 0);
-      x = x+4;
-      button=STRIG(KEYBOARD_BUTTON);
-      if (button == -1) {
-        if (x < 64 || x > 96) 
+      if (subiendo == true)
         {
-        VPRINT(0, 3, "     ");
-        VPRINT(0, 3, "FUERA");
-        VPRINTNUMBER(0, 4, 3, x);
-        WAIT(10);
-      } else {
-        VPRINT(0, 3, "      ");
-        VPRINT(0, 3, "DENTRO");
-        VPRINTNUMBER(0, 4, 3, x);
-        WAIT(10);
-      }
-      }
+        x = x+velocidad;
+        PUTSPRITE(0, x+48, 88, 3, 0);
+        button=STRIG(KEYBOARD_BUTTON);
+          if (button == -1) 
+            {
+            if (x < 62 || x > 74) 
+              {
+              CLS();
+              if (tipo == 0)
+                {
+                VPRINT(0,0,"EL PIJO TE ARREA");
+                }
+                if (tipo == 1)
+                {
+                VPRINT(0,0,"EL JONKI TE PEGA MOJADA");
+                }
+              else 
+                {
+                VPRINT(0,0,"EL POLI TE PEGA UN TIRO");
+                }
+              WAIT(200);
+              dia = dia -1;
+              vida = vida - vidaRestar;
+              PRECIOS(bar);
+              calcDeuda();
+              stockCamello();
+              diaSemana();
+              checkSecreta();
+              BARRIO();
+            } 
+            else 
+              {
+              CLS();
+            if (tipo == 0)
+              {
+              VPRINT(0,0,"LE PEGAS UNA HOSTIA AL PIJO");
+              r = (ran100()*4);
+              VPRINT(0,1,"LE ROBAS ");
+              VPRINTNUMBER(10,1,4,r);
+              dinero = dinero + r;
+              }
+            if (tipo == 1) 
+            {
+            VPRINT(0,0,"LE ZUMBAS AL JONKI");
+            r = ((ran100()*4)/100);
+            if (r<1)
+              { 
+              r = 1;
+              }
+            int rr = ((ran100()*7)/100);
+            int d = ran100();
+            VPRINT(0,1,"EL JONKI LLEVA ");
+            VPRINTNUMBER(15,1,1,r);
+            VPRINT(17,1,"DE ");
+            VPRINT(21,1,drugs[rr]);
+            VPRINT(0,2,"Y ");
+            VPRINTNUMBER(2,2,3,d);
+            VPRINT(6,2,"DE DINERO");
+            dinero = dinero + d;
+            stock[rr] = stock[rr] + r;
+            }
+             else {
+              VPRINT(0,0,"LE DAS UNA PALIZA AL POLI");
+              VPRINT(0,1,"ESCAPAS");
+              }      
+            WAIT(200);
+            dia = dia -1;
+            calcDeuda();
+            stockCamello();
+            WAIT(200);
+            PRECIOS(bar);
+            diaSemana();
+            checkSecreta();
+            BARRIO();     
+          }
+            }
       WAIT(1);
-      if (x == 152)
+      if (x > 140)
         {
         subiendo = false;
         }
       }
       else
       {
-      PUTSPRITE(0, x, 8, 3, 0);
-      x = x -4;
-      button=STRIG(KEYBOARD_BUTTON);
-      if (button == -1) {
-        if (x < 64 || x > 96) 
-        {
-        VPRINT(0, 3, "     ");
-        VPRINT(0, 3, "FUERA");
-        VPRINTNUMBER(0, 4, 3, x);
-        WAIT(10);
-      } else {
-        VPRINT(0, 3, "      ");
-        VPRINT(0, 3, "DENTRO");
-        VPRINTNUMBER(0, 4, 3, x);
-        WAIT(10);
-      }
-      }
+        x = x-velocidad;
+        PUTSPRITE(0, x+48, 88, 3, 0);
+        button=STRIG(KEYBOARD_BUTTON);
+          if (button == -1) 
+            {
+            if (x < 62 || x > 74) 
+              {
+              CLS();
+              if (tipo == 0)
+                {
+                VPRINT(0,0,"EL PIJO TE ARREA");
+                }
+                if (tipo == 1)
+                {
+                VPRINT(0,0,"EL JONKI TE PEGA MOJADA");
+                }
+              else 
+                {
+                VPRINT(0,0,"EL POLI TE PEGA UN TIRO");
+                }
+              WAIT(200);
+              dia = dia -1;
+              vida = vida - vidaRestar;
+              PRECIOS(bar);
+              calcDeuda();
+              stockCamello();
+              diaSemana();
+              checkSecreta();
+              BARRIO();
+            } 
+            else 
+              {
+              CLS();
+            if (tipo == 0)
+              {
+              VPRINT(0,0,"LE PEGAS UNA HOSTIA AL PIJO");
+              r = (ran100()*4);
+              VPRINT(0,1,"LE ROBAS ");
+              VPRINTNUMBER(10,1,4,r);
+              dinero = dinero + r;
+              }
+            if (tipo == 1) 
+            {
+            VPRINT(0,0,"LE ZUMBAS AL JONKI");
+            r = ((ran100()*4)/100);
+            if (r<1)
+              { 
+              r = 1;
+              }
+            int rr = ((ran100()*7)/100);
+            int d = ran100();
+            VPRINT(0,1,"EL JONKI LLEVA ");
+            VPRINTNUMBER(15,1,1,r);
+            VPRINT(17,1,"DE ");
+            VPRINT(21,1,drugs[rr]);
+            VPRINT(0,2,"Y ");
+            VPRINTNUMBER(2,2,3,d);
+            VPRINT(6,2,"DE DINERO");
+            dinero = dinero + d;
+            stock[rr] = stock[rr] + r;
+            }
+             else 
+             {
+              VPRINT(0,0,"LE DAS UNA PALIZA AL POLI");
+              VPRINT(0,1,"ESCAPAS");
+              }      
+            WAIT(200);
+            dia = dia -1;
+            calcDeuda();
+            stockCamello();
+            WAIT(200);
+            PRECIOS(bar);
+            diaSemana();
+            checkSecreta();
+            BARRIO();
+              }
+            } 
       WAIT(1);
       if (x == 0)
         {
@@ -2390,13 +2307,41 @@ void testBarra(){
     }
 }
 
-void testTrack(){
+void intentarEscapar(int tipo){
+  int velocidad = 0;
+  int diasRestar = 0;
+  int vidaRestar = 0;
+  if (tipo == 0){
+  velocidad = 14;
+  diasRestar = 1;
+  vidaRestar = 50;
+  }
+  if (tipo == 1){
+  velocidad = 11;
+  diasRestar = 3;
+  vidaRestar = 50;
+  }
+  
   CLS();
   VPRINT(0,0,"CORRE FORREST!");
+  if (tipo == 0){
+  VPRINT(0,2,"EL JONKI");
+  }
+  if (tipo == 1){
+  VPRINT(0,2,"EL POLI");
+  }
   int total = 0;
   int medio = 0;
   int jonka = 0;
   int jonkb = 0;
+  WAIT(50);
+  VPRINT(0,5,"3");
+  WAIT(50);
+  VPRINT(0,5,"2");
+  WAIT(50);
+  VPRINT(0,5,"1");
+  WAIT(50);
+  VPRINT(0,5,"0!");
   while(1)
   {
   dir = STICK(CURSORKEYS);
@@ -2422,26 +2367,76 @@ void testTrack(){
       WAIT(3);
     }
     jonka = jonka + 1;
-    if (jonka > 12)
+    if (jonka > velocidad)
     {
       jonkb = jonkb +1;
       jonka = 0;
     }
-    VPRINT(0,2,"EL JONKI");
+    if (total > 99){
+      CLS();
+      VPRINT(0,0,"CONSIGUES ESCAPAR");
+      WAIT(100);
+      dia = dia -1;
+      calcDeuda();
+      stockCamello();
+      WAIT(200);
+      PRECIOS(bar);
+      diaSemana();
+      checkSecreta();
+      BARRIO(); 
+    }
+    if (jonkb > 99){
+      CLS();
+      VPRINT(0,0,"TE PILLO!");
+      WAIT(100);
+      vida = vida - vidaRestar;
+      dia = dia - diasRestar;
+      calcDeuda();
+      stockCamello();
+      WAIT(200);
+      PRECIOS(bar);
+      diaSemana();
+      checkSecreta();
+      BARRIO(); 
+    }
     VPRINTNUMBER(0,3,2,jonkb);
   }
 }
 
-void testPunteria(){
+void disparos(){
   CLS();
+  int posicionPolicia[] = {0,10,7,15,14,12,20,7};
   int curX = 0;
   int curY = 0;
   int polX = 0;
   int polY = 0;
-  VPRINT(0,0,"OOOO");
-  VPRINT(0,1,"OOOO");
-  VPRINT(0,2,"OOOO");
-  VPRINT(0,3,"OOOO");
+  int sitioX = 0;
+  int sitioY = 0;
+  int posicion = (ran100()*4)/100;
+  switch (posicion)
+  {
+  case 0:
+    sitioX = posicionPolicia[0];
+    sitioY = posicionPolicia[1];
+    break;
+  case 1:
+    sitioX = posicionPolicia[2];
+    sitioY = posicionPolicia[3];
+    break;
+  case 2:
+    sitioX = posicionPolicia[4];
+    sitioY = posicionPolicia[5];
+    break;
+  case 3:
+    sitioX = posicionPolicia[6];
+    sitioY = posicionPolicia[7];
+    break;
+  }
+  VPRINT(sitioX,sitioY,"OOOO");
+  VPRINT(sitioX,sitioY+1,"OOOO");
+  VPRINT(sitioX,sitioY+2,"OOOO");
+  VPRINT(sitioX,sitioY+3,"OOOO");
+ 
   PUTSPRITE(0, curX, curY, 5, 1);
   while(1)
     {
@@ -2484,19 +2479,33 @@ void testPunteria(){
       curX=curX -4;
     }
     if (button == -1) {
-        if (curX >= 0 && curX <= 28 && curY >= 0 && curY <= 28) 
+        if (curX >= (sitioX*8) && curX <= ((sitioX*8)+26) && curY >= (sitioY*8) && curY <= ((sitioY*8)+26)) 
         {
         VPRINT(0, 6, "DENTRO");
-        VPRINTNUMBER(0, 7, 3, curX);
-        VPRINTNUMBER(0, 8, 3, curY);
         WAIT(10);
+        WAIT(200);
+        dia = dia -1;
+        calcDeuda();
+        stockCamello();
+        WAIT(200);
+        PRECIOS(bar);
+        diaSemana();
+        checkSecreta();
+        BARRIO(); 
         }
         else
         {
         VPRINT(0, 6, "FUERA");
-        VPRINTNUMBER(0, 7, 3, curX);
-        VPRINTNUMBER(0, 8, 3, curY);
-        WAIT(10);  
+        VPRINT(0,7,"EL POLI TE PEGA UN TIRO");
+        WAIT(200);
+        dia = dia -1;
+        vida = vida - 60;
+        PRECIOS(bar);
+        calcDeuda();
+        stockCamello();
+        diaSemana();
+        checkSecreta();
+        BARRIO();  
         }
     }
     PUTSPRITE(0,curX,curY,5,1);
