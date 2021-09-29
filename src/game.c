@@ -742,7 +742,6 @@ int s;
 
 void BARRIO()
 {
-  disparos();
   switch (barrioPartida)
   {
   case 1:
@@ -1980,11 +1979,6 @@ void rastro() {
 
 void pijo() {
   CLS();
-  int s;
-  for (s=0; s<8; ++s)
-  {
-    stock[s] = 0;
-  }
   CURSOR = 0;
   int cur = 0;
   int pijoDroga = ((ran100()*8)/100);
