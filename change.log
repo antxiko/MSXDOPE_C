@@ -1,3 +1,24 @@
+05/09/21
+    Implementadas Cadenas y Navaja.
+        - Navaja hace que la zona de acierto en la barra sea mas grande
+        - Cadenas hacen que la velocidad sea más lenta.
+        
+04/9/21
+    Ahora antes de llamar a una funcion se hace rebound del teclado, no
+        volvera a escuchar el teclado a menos que soltemos el space.
+    Implementado el Botiquin.
+
+30/9/21
+    Acotado maximos del pijo para que no compre todo el stock.
+    Los sprites se desactivan cuando no hacen falta.
+    
+29/9/21
+    Retocados los disparos con cuenta atrás.
+    Retocado pijo, tenia bug que dejaba stock a 0.
+    Corregidos bugs varios (secreta y stockCamello).
+    Corregido el check de vida en Hospital y Prestamista.
+    
+
 24/9/21
     Integrada rutina de ritmo en pijo y jonki.
     Integrada rutina de track & field en pijo y jonki.
