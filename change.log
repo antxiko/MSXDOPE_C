@@ -1,8 +1,16 @@
-05/09/21
+07/9/21
+    - Disparar consume municion.
+    - Implementado final si la de deuda está pagada.
+    - Si no tenemos espacio, no podemos coger lo que suelta el jonki.
+    - Corregidos bugarros varios.
+
+05/9/21
     Implementadas Cadenas y Navaja.
         - Navaja hace que la zona de acierto en la barra sea mas grande
         - Cadenas hacen que la velocidad sea más lenta.
-        
+    Implementada la mochila, sube el stock maximo a 50 desde 20.
+        - La municion y las drogas usan 1 slot cada unidad.
+
 04/9/21
     Ahora antes de llamar a una funcion se hace rebound del teclado, no
         volvera a escuchar el teclado a menos que soltemos el space.
