@@ -50,6 +50,7 @@ void imprimeIcono(char column, char line, char caracter);
 void peleaBarra(int tipo);
 void intentarEscapar(int tipo);
 void disparos();
+void rebound();
 
 const char bilbao[8][15] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo","Hospital","Prestamista"};
 const char madrid[8][15] = {"Orcasitas","Villaverde","Valdemingomez","San Cristobal","Carabanchel","Moraleja","Hospital","Prestamista"};
@@ -74,7 +75,7 @@ const int disp[][8] = {
   { 10, 20, 19, 40,100, 300, 1000, 1950}
   };
 
-const int precioVAR[] = { 1,2, 3, 5, 11, 18, 37, 63};
+const int precioVAR[] = { 1,2, 3, 5, 11, 18, 36, 60};
 const int camelloVAR[] = { 4,5, 6, 10, 12, 16, 23, 35};
 
 static unsigned long int next;
@@ -90,6 +91,7 @@ int dinero = 3000;
 int deuda = 3000;
 int vida = 100;
 int bar = 0;
+int deudaCiudad=0;
 char SEED;
 int vidaJonki;
 int vidaPoli;
@@ -97,6 +99,8 @@ int municion;
 int fecha;
 int barrioPartida;
 int randomSecreta;
+int limiteStock;
+int compras;
 
 boolean pistola = false;
 boolean navaja = false;
@@ -677,6 +681,8 @@ void main(void)
 
 void inicializar() 
 {
+  POKE(CLIKSW,0);
+
 int s;
   for (s=0; s<8; ++s){
     stock[s] = 0;
@@ -695,6 +701,8 @@ int s;
   deuda = 3000;
   vida = 100;
   municion = 0;
+  limiteStock = 20;
+  compras = 0;
   navaja = false;
   cadena = false;
   pistola = false;
@@ -764,11 +772,22 @@ void BARRIO()
   default:
     break;
   }
+  if (vida <= 0 && botiquin == true){
+    CLS();
+    VPRINT(0,0,"TE HAS QUEDADO SIN VIDA");
+    VPRINT(0,1,"PERO TIENES EL BOTIQUIN");
+    VPRINT(0,2,"RECUPERAS 40 DE VIDA");
+    vida = 40;
+    botiquin = false;
+    WAIT(200);
+    BARRIO();
+  }
   if (soplon == true && haySecreta == true){
     CLS();
     VPRINT(0,0,"CUIDADO, HAY SECRETA!");
     VPRINT(0,1,"NO COMERCIES!");
     soplon = false;
+    haySecreta = false;
     WAIT(200);
   }
 
@@ -784,14 +803,22 @@ void BARRIO()
     WAIT(500);
     inicializar();
   }
-  if (dia == 0 && deuda > 0){
+  if (dia <= 0 && deuda > 0){
     CLS();
     VPRINT(0,0,"GAMEOVER");
     WAIT(500);
     inicializar();
   }
+  if (dia == 0 && deuda == 0){
+    CLS();
+    VPRINT(0,0,"GAMEOVER");
+    VPRINT(0,1,"GENIAL! HAS PAGADO LA DEUDA");
+    VPRINT(0,2," Y UNOS BENEFICIOS DE");
+    VPRINTNUMBER(23,2,5,dinero);
+    WAIT(500);
+    inicializar();
+  }
   
-  WAIT(15);
   int CURSOR = 0;
   CopyToVRAM((uint) GUI,BASE10,96*8);
   VPRINT (3,1, "Barrio: ");
@@ -810,7 +837,8 @@ void BARRIO()
   VPRINT (15,22,"VIAJAR");
   VPRINT (23,22,"STOCK");
   VPRINT (2,18,diasSEMANA[fecha]);
-  
+  //VPRINTNUMBER(0,0,2,compras);
+
   if (fecha == rastroDia[bar]){
     VPRINT(16,18,"RASTRO");
     rastroOk = true;
@@ -831,15 +859,40 @@ void BARRIO()
   }
   
     PUTSPRITE(0, posX[CURSOR], 174, 8, 7);
+    
+    int curMov = 0;
+    int curMovX = 0;
+    boolean subiendo = true;
     while(1)
     {
+
+    curMov = curMov +1;
+    if (curMov > 1 && subiendo == true){
+      curMovX = curMovX +1;
+      curMov = 0;
+    }
+    if (curMov > 1 && subiendo == false){
+      curMovX = curMovX -1;
+      curMov = 0;
+    }
+    if (curMovX == 2){
+      subiendo = false;
+    }
+    if (curMovX == -2){
+      subiendo = true;
+    }
+    if (ras == 0){
+    PUTSPRITE(0, posX[CURSOR]+curMovX, 174, 8, 7);
+    }
+    if (ras == 1){
+    PUTSPRITE(0, 120+curMovX, 142, 8, 7);
+    }
+
     HALT;
     dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
-
-    
     if (dir == 1 && rastroOk == true){
-      PUTSPRITE(0, 120, 142, 8, 7);
+      PUTSPRITE(0, 120+curMovX, 142, 8, 7);
       ras = 1;
     }
     if (dir == 5){
@@ -866,17 +919,26 @@ void BARRIO()
     }
     if (button < 0 && rastroOk == true && ras == 1)
     {
+    PUTSPRITE(0, 250, 250, 8, 7);
+    rebound();
     rastro();
     }
     if (button < 0 && CURSOR == 2 && ras == 0)
     {
+      PUTSPRITE(0, 250, 250, 8, 7);
+      rebound();
       STOCK();
     }
-    if (button < 0 && CURSOR == 1 && ras == 0){
+    if (button < 0 && CURSOR == 1 && ras == 0)
+    {
+      PUTSPRITE(0, 250, 250, 8, 7);
+      rebound();
       VIAJAR();
     }
     if (button < 0 && CURSOR == 0 && ras == 0)
     {
+    PUTSPRITE(0, 250, 250, 8, 7);
+    rebound();
     COMERCIAR();
     }
   }
@@ -920,29 +982,41 @@ void menuPrincipal(){
     }
     if (button < 0 && CURSOR == 0)
     {
+    PUTSPRITE(0, 260, 240, 8, 7);
     WAIT(10);
     dia = 31;
+    deuda = 3000;
+    deudaCiudad = 4;
     barrioPartida = 1;
     PRECIOS(bar);
     stockCamello();
+    rebound();
     BARRIO();
     }
     if (button < 0 && CURSOR == 1)
     {
+    PUTSPRITE(0, 260, 240, 8, 7);
     WAIT(10);
     dia = 90;
+    deuda = 5000;
+    deudaCiudad = 5;
     barrioPartida = 2;
     PRECIOS(bar);
     stockCamello();
+    rebound();
     BARRIO();
     }
     if (button < 0 && CURSOR == 2)
     {
+    PUTSPRITE(0, 260, 240, 8, 7);
     WAIT(10);
     dia = 365;
+    deuda = 8000;
+    deudaCiudad = 6;
     barrioPartida = 3;
     PRECIOS(bar);
     stockCamello();
+    rebound();
     BARRIO();
     }
   }
@@ -964,17 +1038,39 @@ void COMERCIAR()
   VPRINTNUMBER(21,6+c,5,precioBARRIO[c]);
   }
   WAIT(10);
-
+  int curMov = 0;
+  int curMovX = 0;
+  boolean subiendo = false;
+  
   while(1)
-    {
+    {     
     HALT;
     dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
-    PUTSPRITE(0,20,posY[CURSOR], 8, 7);
+
+    curMov = curMov +1;
+    if (curMov > 1 && subiendo == true){
+      curMovX = curMovX +1;
+      curMov = 0;
+    }
+    if (curMov > 1 && subiendo == false){
+      curMovX = curMovX -1;
+      curMov = 0;
+    }
+    if (curMovX == 2){
+      subiendo = false;
+    }
+    if (curMovX == -2){
+      subiendo = true;
+    }
+
+    PUTSPRITE(0,20+curMovX,posY[CURSOR], 8, 7);
+    
     if (dir == 3){
       if (stock[CURSOR] > 0)
       {
         if (haySecreta == true){
+          PUTSPRITE(0, 260, 240, 8, 7);
           CLS();
           VPRINT(0,0,"ES UN SECRETA!");
           VPRINT(0,0,"DROGAS REQUISADAS Y 3 DIAS DE CARCEL");
@@ -987,22 +1083,26 @@ void COMERCIAR()
             {
             stock[d] = 0;
             }
+          compras = municion;
           PRECIOS(bar);
           stockCamello();
           diaSemana();
           BARRIO();
         }
+        compras = compras - 1;
         stock[CURSOR] = stock[CURSOR]- 1;
         camello[CURSOR] = camello[CURSOR] +1;
         dinero = (dinero + precioBARRIO[CURSOR]);
+        //VPRINTNUMBER(0,0,2,compras);
         printCAMEL();
         VPRINT (3,2, "Dinero: ");
+        //VPRINTNUMBER (0,0,2,compras);
         VPRINTNUMBER (11,2, 5, dinero);
         WAIT(10);
       }
     }
     if (dir == 7){
-      if (camello[CURSOR] > 0 && dinero>precioBARRIO[CURSOR])
+      if (camello[CURSOR] > 0 && dinero>precioBARRIO[CURSOR] && compras < limiteStock)
       {
         if (haySecreta == true){
           CLS();
@@ -1022,9 +1122,11 @@ void COMERCIAR()
           diaSemana();
           BARRIO();
         }
+        compras = compras + 1;
         stock[CURSOR] = stock[CURSOR]+ 1;
         camello[CURSOR] = camello[CURSOR] -1;
         dinero = (dinero - precioBARRIO[CURSOR]);
+        //VPRINTNUMBER(0,0,2,compras);
         printCAMEL();
         VPRINT (3,2, "Dinero: ");
         VPRINTNUMBER (11,2, 5, dinero);
@@ -1049,8 +1151,9 @@ void COMERCIAR()
     }
     if (button < 0)
     {
+      PUTSPRITE(0, 260, 240, 8, 7);
       CLS();
-      WAIT(15);
+      rebound();
       BARRIO();
     }
   }
@@ -1058,6 +1161,7 @@ void COMERCIAR()
 
 void STOCK()
 {
+  PUTSPRITE(0, 260, 240, 8, 7);
   CLS();
   CopyToVRAM((uint) GUI,BASE10,96*8);
   DRUGS();
@@ -1066,19 +1170,16 @@ void STOCK()
   {
   VPRINTNUMBER(15,6+c,2,stock[c]);
   }
-  WAIT(15);
-
+  
   while(1)
     {
     HALT;
-    dir = STICK(CURSORKEYS);
-    
     button=STRIG(KEYBOARD_BUTTON);
 
-    PUTSPRITE(0, posX[CURSOR], 174, 8, 7);
     if (button < 0)
     {
       CLS();
+      rebound();
       BARRIO();
     }
   }
@@ -1088,7 +1189,7 @@ void VIAJAR()
 {
   CLS();
   CopyToVRAM((uint) GUI,BASE10,96*8);
-  CURSOR = 0;
+  CURSOR = bar;
   int d;
   for (d = 0; d < 6; ++d)
   {
@@ -1110,16 +1211,34 @@ void VIAJAR()
   }
   VPRINT(10,12,"Hospital");
   VPRINT(10,13,"Prestamista");
-  WAIT(10);
 
+
+  int curMov = 0;
+  int curMovX = 0;
+  boolean subiendo = true;
   while(1)
     {
     HALT;
-    dir = STICK(CURSORKEYS);
     
+    dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
+    curMov = curMov +1;
+    if (curMov > 1 && subiendo == true){
+      curMovX = curMovX +1;
+      curMov = 0;
+    }
+    if (curMov > 1 && subiendo == false){
+      curMovX = curMovX -1;
+      curMov = 0;
+    }
+    if (curMovX == 2){
+      subiendo = false;
+    }
+    if (curMovX == -2){
+      subiendo = true;
+    }
 
-    PUTSPRITE(0,70,posY[CURSOR], 8, 7);
+    PUTSPRITE(0,70+curMovX,posY[CURSOR], 8, 7);
     
     if (dir == 1){
       CURSOR = CURSOR - 1;
@@ -1139,6 +1258,8 @@ void VIAJAR()
     }
     if (button < 0)
     {
+      rebound();
+      PUTSPRITE(0, 260, 240, 8, 7);
       bar = CURSOR;
       char r;
       r = getR();
@@ -1148,11 +1269,14 @@ void VIAJAR()
         CLS();
         PRECIOS(bar);
         diaSemana();
+        if (CURSOR < 6) {
         checkSecreta();
+        }
         BARRIO();
         WAIT(50);
       }
       if (r<78 && r>=64)
+      //if (r > 64)
       {
         CLS();
         VPRINT(0,0,"JONKI!!!!");
@@ -1184,6 +1308,7 @@ void VIAJAR()
         CLS();
         PRECIOS(bar);
         overflow();
+        stockCamello();
         diaSemana();
         checkSecreta();
         BARRIO();
@@ -1199,6 +1324,7 @@ void VIAJAR()
         CLS();
         PRECIOS(bar);
         underflow();
+        stockCamello();
         diaSemana();
         checkSecreta();
         BARRIO();
@@ -1223,15 +1349,15 @@ void PRECIOS(int barrio){
   for (c = 0; c < 8; ++c)
   {
     char r;
-    r = getR();
-    if (r<64)
+    r = ran100();
+    if (r<51)
     {
     precioBARRIO[c] = precioTEMP[c] + precioVAR[c];
     int br;
     br = ((ran100()*3)/100)*precioVAR[c];
     precioBARRIO[c] = precioBARRIO[c] + br;
     }
-    if (r>64)
+    else
     {
     precioBARRIO[c] = precioTEMP[c] - precioVAR[c];
     int br;
@@ -1244,7 +1370,6 @@ void PRECIOS(int barrio){
 void JONKI () {
   CLS();
   CURSOR = 0;
-  vidaJonki=50;
   VPRINT(1,3,"ATACAR");
   VPRINT(8,3,"INTENTAR ESCAPAR");
   PUTSPRITE(0, 0, 24, 8, 7);
@@ -1275,6 +1400,7 @@ void JONKI () {
         PUTSPRITE(0, 0, 24, 8, 7);
     }
     if (button < 0 && CURSOR == 0){
+      PUTSPRITE(0, 260, 240, 8, 7);
       CLS();
       VPRINT(0,0,"ATACAS");
       WAIT(50);
@@ -1282,14 +1408,26 @@ void JONKI () {
     }
     if (button < 0 && CURSOR == 1)
     {
+      PUTSPRITE(0, 260, 240, 8, 7);
       CLS();
+      rebound();
       intentarEscapar(0);
     }
   }
-
-  if (pistola == true){
+  if (pistola == true && municion == 0)
+    {
+    VPRINT(0,0,"TIENES PISTOLA PERO");
+    VPRINT(0,1,"NO TIENES MUNICION, PANCHITO");
+    WAIT(200);
+    peleaBarra(1);
+    }
+  if (pistola == true)
+  {
+    PUTSPRITE(0, 260, 240, 8, 7);
     CLS();
-    VPRINT(0,0,"DISPARAS LA JONKI");
+    VPRINT(0,0,"DISPARAS AL JONKI");
+    compras = compras - 1;
+    municion = municion - 1;
     r = ((ran100()*4)/100);
     if (r<1){ r = 1;
     }
@@ -1302,8 +1440,28 @@ void JONKI () {
     VPRINT(0,2,"Y ");
     VPRINTNUMBER(2,2,3,d);
     VPRINT(6,2,"DE DINERO");
+    int limite = limiteStock - compras;
+    WAIT(200);
+    if ((compras + r) > limiteStock)
+      {
+      VPRINT(0,3,"SOBREPASAS EL LIMITE DE STOCK");
+      VPRINT(0,4,"PERO TODAVIA PUEDES PILLAR");
+      VPRINTNUMBER(28,4,1,limite);
+      dinero = dinero + d;
+      stock[rr] = stock[rr] + limite;
+      compras = compras + limite;
+      dia = dia -1;
+      calcDeuda();
+      stockCamello();
+      WAIT(200);
+      PRECIOS(bar);
+      diaSemana();
+      checkSecreta();
+      BARRIO();
+      }
     dinero = dinero + d;
     stock[rr] = stock[rr] + r;
+    compras = compras + r;
     dia = dia -1;
     calcDeuda();
     stockCamello();
@@ -1354,12 +1512,22 @@ void POLICIA() {
       }
     if (button < 0 && CURSOR == 0)
       {
+      rebound();
+      PUTSPRITE(0, 260, 240, 8, 7);
       CLS();
       VPRINT(0,0,"ATACAS");
       WAIT(50);
-      if (pistola == true)
+      if (pistola == true && municion == 0)
+      {
+      CLS();
+      VPRINT(0,0,"LLEVAS LA PIPA SIN BALAS");
+      VPRINT(0,1,"PELEAIS");
+      WAIT(50);
+      peleaBarra(2);  
+      }
+      else if (pistola == true && municion > 0)
         {//CON PISTOLA
-        VPRINT(0,0,"TIENES PISTOLA, DISPARAS");
+        VPRINT(0,0,"TIENES PISTOLA Y MUNICION, DISPARAS");
         WAIT(50);
         disparos();
         }
@@ -1372,11 +1540,13 @@ void POLICIA() {
       }
     if (button < 0 && CURSOR == 1)
       {
+      rebound();
       intentarEscapar(1);
       }
     if (button < 0 && CURSOR == 2)
       {
       CLS();
+      rebound();
       SOBORNO();
       }
     }
@@ -1384,6 +1554,7 @@ void POLICIA() {
 
 void SOBORNO() 
 {
+PUTSPRITE(0, 260, 240, 8, 7);
 CURSOR = 0;
 VPRINT(0,0,"SOBORNAS");
 WAIT(50);
@@ -1425,6 +1596,8 @@ PUTSPRITE(0, 0,32, 8, 7);
     }
     if (button < 0 && CURSOR == 0)
       {
+        rebound();
+        PUTSPRITE(0, 260, 240, 8, 7);
         if (dinero < rf)
         {
           CLS();
@@ -1454,6 +1627,8 @@ PUTSPRITE(0, 0,32, 8, 7);
       }
     if (button < 0 && CURSOR == 1)
       {
+      rebound();
+      PUTSPRITE(0, 260, 240, 8, 7);
       CLS();
       VPRINT(0,0,"POR NO PAGAR: 3 DIAS EN CARCEL Y DROGAS REQUISADAS");
       WAIT(200);
@@ -1465,6 +1640,7 @@ PUTSPRITE(0, 0,32, 8, 7);
         {
         stock[d] = 0;
         }
+      compras = municion;
       PRECIOS(bar);
       diaSemana();
       checkSecreta();
@@ -1474,6 +1650,30 @@ PUTSPRITE(0, 0,32, 8, 7);
 }
 
 void hospital() {
+
+  if (vida<10){
+    CLS();
+    VPRINT(0,0,"GAMEOVER");
+    VPRINT(0,1,"HAS PERDIDO TODA LA VIDA");
+    WAIT(500);
+    inicializar();
+  }
+  if (dia == 0 && deuda > 0){
+    CLS();
+    VPRINT(0,0,"GAMEOVER");
+    VPRINT(0,1,"NO HAS PAGADO LA DEUDA");
+    WAIT(500);
+    inicializar();
+  }
+  if (dia == 0 && deuda == 0){
+    CLS();
+    VPRINT(0,0,"GAMEOVER");
+    VPRINT(0,1,"GENIAL! HAS PAGADO LA DEUDA");
+    VPRINT(0,2," Y UNOS BENEFICIOS DE");
+    VPRINTNUMBER(23,2,5,dinero);
+    WAIT(500);
+    inicializar();
+  }
 
   int CURSOR = 0;
 
@@ -1544,12 +1744,38 @@ void hospital() {
     }
     if (button < 0 && CURSOR == 3)
     {
+      rebound();
+      PUTSPRITE(0, 260, 240, 8, 7);
       VIAJAR();
     }
   }
 }
 
 void prestamista() {
+
+  if (vida<10){
+    CLS();
+    VPRINT(0,0,"GAMEOVER");
+    VPRINT(0,1,"TE HAN MATADO");
+    WAIT(500);
+    inicializar();
+  }
+  if (dia == 0 && deuda > 0){
+    CLS();
+    VPRINT(0,0,"GAMEOVER");
+    VPRINT(0,1,"NO HAS PAGADO TU DEUDA");
+    WAIT(500);
+    inicializar();
+  }
+  if (dia == 0 && deuda == 0){
+    CLS();
+    VPRINT(0,0,"GAMEOVER");
+    VPRINT(0,1,"GENIAL! HAS PAGADO LA DEUDA");
+    VPRINT(0,2," Y UNOS BENEFICIOS DE");
+    VPRINTNUMBER(23,2,5,dinero);
+    WAIT(500);
+    inicializar();
+  }
 
   int CURSOR = 0;
   CopyToVRAM((uint) GUI,BASE10,96*8);
@@ -1603,6 +1829,7 @@ void prestamista() {
       }
       VPRINTNUMBER(25,2,5, deuda);
       VPRINTNUMBER (11,2, 5, dinero);
+      //VPRINTNUMBER(0,0,2,compras);
       WAIT(10);
     }
     
@@ -1643,23 +1870,28 @@ void prestamista() {
 
     if (button < 0 && CURSOR == 3 && mochila == false && dinero > 500)
     {
+      limiteStock = 50;
       dinero = dinero - 500;
       mochila = true;
       VPRINTNUMBER(11,2, 5, dinero);
       WAIT(10);
     }
 
-    if (button < 0 && CURSOR == 4 && dinero > 50)
+    if (button < 0 && CURSOR == 4 && dinero > 100 && compras < limiteStock)
     {
+      compras = compras +1;
       dinero = dinero - 50;
       municion = municion + 1;
       VPRINTNUMBER(11,2, 5, dinero);
       VPRINTNUMBER(15,15,2,municion);
+      //VPRINTNUMBER(0,0,2,compras);
       WAIT(10);
     }
     
     if (button < 0 && CURSOR == 5)
     {
+    rebound();
+    PUTSPRITE(0, 260, 240, 8, 7);
     VIAJAR();
     }
   }
@@ -1809,6 +2041,10 @@ __endasm;
 }
 
 int ran100() {
+  // int rr = 0;
+  // int r = (ran100()/34);
+  // for (rr=0;rr<r;++rr){  
+  // }
   int a;
   int b = getR();
   a = ((b*100)/128);
@@ -1817,7 +2053,7 @@ int ran100() {
 
 void calcDeuda() {
   int t;
-  t = ((deuda / 100)*4);
+  t = ((deuda / 100)*deudaCiudad);
   deuda = deuda + t;
 }
 
@@ -1834,8 +2070,12 @@ void stockCamello() {
 }
 
 void overflow(){
+int r = (ran100()/50);
+int a;
+for (a=0;a<r;++a){
+}
 int o;
-o = ((ran100()*7)/100);
+o = ((ran100()*8)/100);
 precioBARRIO[o] = precioBARRIO[o]/2;
 CLS();
 VPRINT(0,0,"DROGA: ");
@@ -1845,6 +2085,10 @@ WAIT(50);
 }
 
 void underflow(){
+int r = (ran100()/50);
+int a;
+for (a=0;a<r;++a){  
+}
 int o;
 o = ((ran100()*8)/100);
 precioBARRIO[o] = precioBARRIO[o]*2;
@@ -1863,11 +2107,15 @@ void diaSemana(){
 }
 
 void rastro() {
-
-  int rd = ((ran100()*7)/100);
-  int rc = ((ran100()*10)/100);
-  int pdr = ((disp[bar][rd])/3);
-  int rdc = 0;
+  int r = (ran100()/50);
+  int a;
+  for (a=0;a<r;++a){  
+  }
+  int rd = ((ran100()*6)/100); // droga del rastro
+  int rc = ((ran100()*10)/100); // cantidad de unidades
+  int pdr = ((disp[bar][rd])/3); // precio de la droga en el rastro
+  int rdc = 0; //precio total a pagar
+  int cr = 0; // las unidades que compramos
   if (rc == 0)
   {
     rc = 1;
@@ -1937,11 +2185,13 @@ void rastro() {
       WAIT(10);
     }
     
-    if (dir == 7 && CURSOR == 2 && dinero > pdr && rc > 0)
+    if (dir == 7 && CURSOR == 2 && dinero > pdr && rc > 0 && compras < limiteStock)
     {
+      compras = compras +1;
       dinero = dinero - pdr;
       stock[rd] = stock[rd] + 1;
       rc = rc - 1;
+      cr = cr + 1;
       VPRINTNUMBER (20,8,1,rc);
       VPRINTNUMBER (11,2, 5, dinero);
       rdc = rdc + 1;
@@ -1949,23 +2199,25 @@ void rastro() {
     }
     if (button < 0 && CURSOR == 3)
     {
+    rebound();
     CLS();
       int ranCalidad;
       int ranCC;
       ranCalidad = ran100();
-      if (ranCalidad > 60)
+      if (ranCalidad > 60 && cr > 3)
       {
         VPRINT(0,0,"DEL ");
         VPRINT(5,0,drugs[rd]);
         VPRINT(14,0," QUE HAS COMPRADO");
         VPRINT(0,1,"TE HAN TANGADO");
-        ranCC = ((ran100()*rc)/100);
+        ranCC = ((ran100()*4)/100);
         if (ranCC == 0) {
           ranCC =1;
         }
         VPRINTNUMBER(15,1,1,ranCC);
         VPRINT (0,3,"ESTABA CORTADA CON HARINA");
         stock[rd] = stock[rd] - ranCC;
+        compras = compras - ranCC;
         WAIT(200);
         VIAJAR();
       } 
@@ -1978,10 +2230,11 @@ void rastro() {
 }
 
 void pijo() {
+  int x;
   CLS();
   CURSOR = 0;
   int cur = 0;
-  int pijoDroga = ((ran100()*8)/100);
+  int pijoDroga = ((ran100()*7)/100);
   VPRINT(0,0,"APARECE UN PIJO CON MONAZO");
   VPRINT(0,1,"QUIERE");
   VPRINT(7,1,drugs[pijoDroga]);
@@ -2021,12 +2274,30 @@ void pijo() {
     }
     if (button < 0 && CURSOR == 0)
       {
+      PUTSPRITE(0, 260, 240, 8, 7);
       if (stock[pijoDroga] > 0) 
         {
+        CLS();
+        
+        int cantidad = ((ran100()*4)/100);
+        
+        if (cantidad == 0)
+        {
+          cantidad = 1;
+        }
+        if (stock[pijoDroga] < cantidad){
+          cantidad = stock[pijoDroga];
+        }
         int precioPijo;
-        precioPijo = (precioBARRIO[pijoDroga] * 4) * stock[pijoDroga];
+        VPRINT(0,4,"TIENES ");
+        VPRINTNUMBER(8,4,2,stock[pijoDroga]);
+        VPRINT(0,5,"LE VENDES");
+        VPRINTNUMBER(10,5,1,cantidad);
+        WAIT(50);
+        precioPijo = (precioBARRIO[pijoDroga] * 3) * cantidad;
         dinero = dinero + precioPijo;
-        stock[pijoDroga] = 0;
+        stock[pijoDroga] = stock[pijoDroga] - cantidad;
+        compras = compras - cantidad;
         VPRINT(0,6,"SE LA VENDES POR ");
         VPRINTNUMBER(17,6,5,precioPijo);
         dia = dia -1;
@@ -2049,6 +2320,7 @@ void pijo() {
       }
     if (button < 0 && CURSOR == 1)
       {
+      PUTSPRITE(0, 260, 240, 8, 7);
       CLS();
       VPRINT(0,0,"NO LE VENDES"); 
       VPRINT(0,0,"TE INTENTA PEGAR");
@@ -2057,6 +2329,7 @@ void pijo() {
       }
     if (button < 0 && CURSOR == 2)
       {
+      PUTSPRITE(0, 260, 240, 8, 7);
       CLS();
       VPRINT(0,0,"LE VAS A SOLTAR UNA HOSTIA"); 
       WAIT(50);
@@ -2111,9 +2384,16 @@ void imprimeIcono(char column, char line, char caracter){
 
 void peleaBarra(int tipo)
 {
-  
   int velocidad = 0;
   int vidaRestar = 0;
+  int izd = 64;
+  int drch = 74;
+
+  if (navaja == true)
+  {
+    izd = izd - 8;
+    drch = drch + 8;
+  }
   if (tipo == 0)
     {
     velocidad = 4;
@@ -2129,9 +2409,21 @@ void peleaBarra(int tipo)
     velocidad = 5;
     vidaRestar = 60;
     }
+  if (cadena == true)
+  {
+  velocidad = velocidad - 1;
+  }
   CLS();
+
   boolean subiendo = true;
-  VPRINT(6,10,"XXXXXXXXOOXXXXXXXX");
+  if (navaja == true)
+  {
+  VPRINT(6,10,"XXXXXXXOooOXXXXXXX");
+  }
+  else
+  {
+  VPRINT(6,10,"XXXXXXXXOOXXXXXXXX");  
+  }
   PUTSPRITE(0, 80, 88, 3, 0);
   int x;
   while(1)
@@ -2143,7 +2435,7 @@ void peleaBarra(int tipo)
         button=STRIG(KEYBOARD_BUTTON);
           if (button == -1) 
             {
-            if (x < 62 || x > 74) 
+            if (x < izd || x > drch) 
               {
               CLS();
                 if (tipo == 0)
@@ -2196,8 +2488,22 @@ void peleaBarra(int tipo)
             VPRINT(0,2,"Y ");
             VPRINTNUMBER(2,2,3,d);
             VPRINT(6,2,"DE DINERO");
-            dinero = dinero + d;
-            stock[rr] = stock[rr] + r;
+            int limite = limiteStock - compras;
+            if ((compras + r) >= limiteStock)
+              {
+              VPRINT(0,3,"SOBREPASAS EL LIMITE DE STOCK");
+              VPRINT(0,4,"PERO TODAVIA PUEDES PILLAR");
+              VPRINTNUMBER(28,4,1,limite);
+              compras = compras + limite;
+              dinero = dinero + d;
+              stock[rr] = stock[rr] + limite;
+              }
+            else
+              {
+              dinero = dinero + d;
+              stock[rr] = stock[rr] + r;
+              compras = compras + r;
+              }
             }
             if (tipo == 2)
             {
@@ -2228,7 +2534,8 @@ void peleaBarra(int tipo)
         button=STRIG(KEYBOARD_BUTTON);
           if (button == -1) 
             {
-            if (x < 62 || x > 74) 
+            //PUTSPRITE(0, 260, 240, 3, 0);
+            if (x < izd || x > drch) 
               {
               CLS();
               if (tipo == 0)
@@ -2281,8 +2588,22 @@ void peleaBarra(int tipo)
             VPRINT(0,2,"Y ");
             VPRINTNUMBER(2,2,3,d);
             VPRINT(6,2,"DE DINERO");
-            dinero = dinero + d;
-            stock[rr] = stock[rr] + r;
+            int limite = limiteStock - compras;
+            if ((compras + r) >= limiteStock)
+              {
+              VPRINT(0,3,"SOBREPASAS EL LIMITE DE STOCK");
+              VPRINT(0,4,"PERO TODAVIA PUEDES PILLAR");
+              VPRINTNUMBER(28,4,1,limite);
+              compras = compras + limite;
+              dinero = dinero + d;
+              stock[rr] = stock[rr] + limite;
+              }
+            else 
+              {
+              dinero = dinero + d;
+              stock[rr] = stock[rr] + r;
+              compras = compras + r;
+              }
             }
             if (tipo == 2) 
              {
@@ -2310,6 +2631,7 @@ void peleaBarra(int tipo)
 }
 
 void intentarEscapar(int tipo){
+  PUTSPRITE(0, 260, 240, 8, 7);
   int velocidad = 0;
   int diasRestar = 0;
   int vidaRestar = 0;
@@ -2406,6 +2728,7 @@ void intentarEscapar(int tipo){
 }
 
 void disparos(){
+
   CLS();
   int posicionPolicia[] = {0,10,7,15,14,12,20,7};
   int curX = 128;
@@ -2461,6 +2784,7 @@ void disparos(){
         {
         CLS();
         VPRINT(0,7,"EL POLI TE PEGA UN TIRO");
+        PUTSPRITE(0, 250, 250, 5, 1);
         WAIT(200);
         dia = dia -1;
         vida = vida - 60;
@@ -2515,7 +2839,10 @@ void disparos(){
         CLS();
         VPRINT(0,6,"DENTRO");
         VPRINT(0,7,"CONSIGUES ESCAPAR");
+        PUTSPRITE(0, 250, 250, 5, 1);
         WAIT(200);
+        municion = municion - 1;
+        compras = compras - 1;
         dia = dia -1;
         calcDeuda();
         stockCamello();
@@ -2529,7 +2856,10 @@ void disparos(){
         {
         VPRINT(0, 6, "FUERA");
         VPRINT(0,7,"EL POLI TE PEGA UN TIRO");
+        PUTSPRITE(0, 250, 250, 5, 1);
         WAIT(200);
+        compras = compras - 1;
+        municion = municion - 1;
         dia = dia -1;
         vida = vida - 60;
         PRECIOS(bar);
@@ -2542,5 +2872,15 @@ void disparos(){
     }
     PUTSPRITE(0,curX,curY,5,1);
     WAIT(1);
+  }
+}
+
+void rebound()
+{
+  button=STRIG(KEYBOARD_BUTTON);
+  while (button == -1)
+  {
+  button=STRIG(KEYBOARD_BUTTON);
+  WAIT(1);
   }
 }
