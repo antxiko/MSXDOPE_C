@@ -1,4 +1,4 @@
-// MSX 1 BIOS v1
+// MSX 1 BIOS v1.1
 // definitions & descriptions by MSX Assembly Page
 // only includes descriptions. For details see the WEB document in:
 // http://map.grauw.nl/resources/msxbios.php

@@ -1,8 +1,8 @@
 /* =============================================================================
                                                                            
-unRLEWBtoVRAM.h                                                                                                                                
+unRLEWBtoRAM                                                                
 
- WB RLE  v1.1
+ WB RLE  v1.0
 
  $80 nn dd            ; run of n consecutive identical bytes ($1>$FE), value dd
  $80 $0               ; for one $80 value
@@ -10,30 +10,30 @@ unRLEWBtoVRAM.h
  <any other value>    ; raw data                                                               
 
 ============================================================================= */
-#ifndef  __UNWBRLE2VRAM_H__
-#define  __UNWBRLE2VRAM_H__
+#ifndef  __UNWBRLE2RAM_H__
+#define  __UNWBRLE2RAM_H__
 
 
 
 /* =============================================================================
- Function : unpack RLE-WB to VRAM
+ Function : unpack RLE-WB to RAM
   
  Input    : [unsigned int] source RAM RLE data address
-            [unsigned int] target VRAM address       
- Output   : -                  
+            [unsigned int] target RAM address       
+ Output   : -                        
 ============================================================================= */
-extern void unRLEWBtoVRAM (unsigned int, unsigned int);
+extern void unRLEWBtoRAM (unsigned int, unsigned int);
 
 
 
 /* =============================================================================
-unRLEWBtoVR (for Assembler in-line)
+unRLEWBRAM (for Assembler inline)
 
- Function : unpack RLE-WB to VRAM
+ Function : unpack RLE-WB to RAM
      
  Input    : HL - source RAM RLE data address
-            DE - target VRAM address
- Output   : -                 
+            DE - target RAM address
+ Output   : -                       
 ============================================================================= */
 
 

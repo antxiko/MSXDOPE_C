@@ -1,6 +1,7 @@
 /* =============================================================================
   Joystick MSX SDCC Library (fR3eL Project)
   Version: header v1.3
+
   Description:
     Opensource library with functions to access to joysticks or keyboard 
     cursors keys. 
@@ -47,6 +48,7 @@
 
 /* =============================================================================
 STICK
+
  Description: Returns the joystick status
  
  Input    : [char] joy port: 

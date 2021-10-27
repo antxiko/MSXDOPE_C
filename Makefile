@@ -8,7 +8,7 @@ CODELOC=0x4050
 CRT=libs/crt0_MSX32kROM4000.rel
 
 # add paths from our objects files into LIB variable
-LIBS=libs/VDP_TMS9918A_ROM.rel libs/interruptM1_Hooks.rel libs/unRLEWBtoVRAM.rel libs/AY38910BF.rel libs/PT3player.rel 
+LIBS=libs/VDP_TMS9918A_ROM.rel libs/VDP_VPRINT.rel libs/AY38910BF.rel libs/PT3player.rel libs/unRLEWBtoVRAM.rel
 
 all: bin/$(ROMFILENAME).ROM
 	# get SDCC version

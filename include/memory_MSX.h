@@ -8,6 +8,7 @@
    Programming language: C
    WEB: 
    mail: mvac7303b@gmail.com
+
    Description:
      Memory access functions
    
@@ -129,6 +130,7 @@ char GetPageSubslot(char page);
    Input    : [char] page (0-3)
               [char] slot (0-3)
    Output   : -
+
   
    More Info: (by MSX Assembly Page)  
    http://map.grauw.nl/resources/msx_io_ports.php
@@ -149,6 +151,7 @@ void SetPageSlot(char page, char slot);
    Input    : [char] page (0-3)
               [char] subslot (0-3)
    Output   : -
+
   
    More Info: (by MSX Assembly Page)  
    http://map.grauw.nl/resources/msx_io_ports.php
@@ -181,7 +184,9 @@ boolean IsExpanded(char slot);
 
 
 /*
+
 char WhereIsRAMslot() or SearchRAMslot();
+
 */
 
 

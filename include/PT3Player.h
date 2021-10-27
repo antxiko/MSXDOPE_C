@@ -1,9 +1,11 @@
 /* =============================================================================
    SDCC Vortex Tracker II PT3 player for MSX
+
    Version: 1.1.10 (05/10/2021)
    Architecture: MSX
    Format: C Object (SDCC .rel)
    Programming language: C and Z80 assembler
+
    Authors:
     - Vortex Tracker II v1.0 PT3 player for ZX Spectrum by S.V.Bulba 
       <vorobey@mail.khstu.ru> http://bulba.at.kz
@@ -13,24 +15,33 @@
       http://paxangasoft.retroinvaders.com/
     - asMSX version: SapphiRe > http://www.z80st.es/
     - Adapted to SDCC: mvac7/303bcn > <mvac7303b@gmail.com>
+
    Description:
      Adaptation of the Vortex Tracker II PT3 Player for MSX to be used in 
      software development in C (SDCC). 
      
      Requires the AY38910BF library  https://github.com/mvac7/SDCC_AY38910BF_Lib 
+
 In this replayer:
+
 Dioniso version:
  - No version detection (just for Vortex Tracker II and PT3.5).
  - No frequency table decompression (default is number 2). 
    Coger tabla segun quiera, en fichero aparte
  - No volume table decompression (Vortex Tracker II/PT3.5 volume table used).
+
+
 msxKun version:
  - Usable desde ROM (solo tiene en RAM area de trabajo, lo minimo posible).
+
 SapphiRe version:
  This version of the replayer uses a fixed volume and note table, if you need a 
  different note table you can copy it from TABLES.TXT file, distributed with the
  original PT3 distribution. This version also allows the use of PT3 commands.
+
  PLAY and PSG WRITE routines seperated to allow independent calls
+
+
 mvac7 version:
  Adaptation to C (SDCC) of the SapphiRe version.
  
@@ -56,6 +67,7 @@ mvac7 version:
 /* --- Workarea --- (apunta a RAM que estaba antes en codigo automodificable)
  -El byte de estado en SETUP deberia ser algo asi (CH enable/disable no esta aun)
 |EP|0|0|0|CH3|CH2|CH1|LP|
+
 LP: Loop enable/disable. A 1 si queremos que el tema suene solo una vez. 
 EP: End point. A 1 cada vez que el tema acaba. 
 CH1-CH3: Channel enable/disable. A 1 si no queremos que suene el canal. (AUN  NO VA!!)
@@ -86,7 +98,7 @@ extern char PT3_state; //before called PT3_SETUP
 
 
 
-extern unsigned int PT3_MODADDR;  //direccion datos canciÃ³n
+extern unsigned int PT3_MODADDR;  //direccion datos canción
 extern unsigned int PT3_CrPsPtr;  //POSICION CURSOR EN PATTERN
 extern unsigned int PT3_SAMPTRS;  //sample info?
 extern unsigned int PT3_OrnPtrs;  //Ornament pattern
@@ -168,7 +180,7 @@ void Player_Resume();
         (char) Loop - 0=off ; 1=on  (false = 0, true = 1));
  Output:      -
 ----------------------------------------------------------------------------- */
-void Player_InitSong(char songADDR, unsigned int notetableADDR, char loop);
+void Player_InitSong(unsigned int songADDR, unsigned int notetableADDR, char loop);
 
 
 

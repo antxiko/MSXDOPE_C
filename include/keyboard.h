@@ -6,6 +6,7 @@
    Programming language: C
    Format: C object (SDCC .rel)   
    mail: mvac7303b@gmail.com
+
    Description:
      Functions for reading the keyboard of MSX computers.     
 ============================================================================= */
@@ -51,6 +52,7 @@ char INKEY();
 
 /* =============================================================================
    GetKeyMatrix
+
    Function : Returns the value of the specified line from the keyboard matrix.
               Each line provides the status of 8 keys.
               To know which keys correspond, you will need documentation that 

@@ -1,25 +1,23 @@
 /* =============================================================================
-   AY38910BF
-   PSG AY-3-8910 Buffer MSX SDCC Library (fR3eL Project)
-   Version: 0.9b (7 July 2021)
+   PSG AY-3-8910 RT MSX SDCC Library (fR3eL Project)
    Author: mvac7
    Architecture: MSX
    Format: C Object (SDCC .rel)
    Programming language: C and Z80 assembler
    
    Description:                                                              
-     Library for accessing the AY38910 through a buffer of registers.
+     Opensource library for access to internal or external MSX PSG AY-3-8910 
+     in Real Time.
      
      It does not use the BIOS so it can be used to program ROMs or 
      MSX-DOS executables. 
 ============================================================================= */
 
-#ifndef  __AY38910BF_H__
-#define  __AY38910BF_H__
+#ifndef  __AY38910RT_H__
+#define  __AY38910RT_H__
 
 
 
-// boolean
 //#ifndef _BOOLEAN
 //#define _BOOLEAN
 //  typedef enum {false = 0, true = 1} boolean;
@@ -71,23 +69,7 @@
 #define AY_EXTERNAL 1
 
 
-
 extern char AY_TYPE;      // 1 = External AY  Else Internal AY
-
-extern char AYREGS[14];   // buffer of AY registers
-
-
-
-
-
-/* =============================================================================
- AY_Init
-
- Function : Initialize the buffer
- Input    : -
- Output   : -
-============================================================================= */
-void AY_Init();
 
 
 
@@ -174,25 +156,14 @@ void SetChannel(char channel, SWITCHER isTone, SWITCHER isNoise);
 
 
 /* =============================================================================
- SetEnvelope(shape) 
+ PlayEnvelope(shape) 
 
- Function : Set envelope shape.
+ Function : Set envelope type.
             Plays the sound on channels that have a volume of 16.
  Input    : [char] Envelope shape (0-15) (see envelope shapes definitions)
  Output   : -
 ============================================================================= */
-void SetEnvelope(char shape);
-
-
-
-/* =============================================================================
- PlayAY() 
-
- Function : Copy buffer to AY (internal or external).
- Input    : -
- Output   : -
-============================================================================= */
-void PlayAY();
+void PlayEnvelope(char shape);
 
 
 
