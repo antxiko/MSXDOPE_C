@@ -3,15 +3,13 @@
 #include "../include/msxBIOS.h"
 #include "../include/VDP_TMS9918A.h"
 #include "../include/VDP_VPRINT.h"
-#include "../include/interruptM1_Hooks.h"
-#include "../include/AY38910BF.h"
+#include "../include/AY38910BF_S.h"
 #include "../include/PT3Player.h"
 #include "../include/PT3player_NoteTable2.h"
 
 
 #include "joystick_MSXROM.c"
 #include "VDP_SPRITES_S_MSXROM.c"
-//#include "VDP_PRINT.c"
 #include "graficos.c"
 #include "musicas.h"
 
@@ -20,10 +18,9 @@
 
 //  definition of functions  ---------------------------------------------------
 void WAIT(uint cicles);
-char PEEK(uint address);
+//char PEEK(uint address);
 void POKE(uint address, char value);
 void CLS();
-//unsigned int VLOCATE(char column, char line);
 void VPRINT(char column, char line, char* text);
 void VPOKEARRAY(uint vaddr, char* text);
 void VPRINTNUMBER(char column, char line, char pLength, uint pNumber);
@@ -60,23 +57,24 @@ void peleaBarra(int tipo);
 void intentarEscapar(int tipo);
 void disparos();
 void rebound();
+void ganasJonki();
 
 
-const char bilbao[8][12] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo","Hospital","Prestamista"};
-const char madrid[8][13] = {"Orcasitas","Villaverde","Valdemingome","SanCristobal","Carabanchel","Moraleja","Hospital","Prestamista"};
-const char newyork[8][13] = {"Harlem","Soho","China Town","Jersey","Bronx","Central Park","Hospital","Prestamista"};
-const char drugs[8][12] = {"Pegamento","Kifi","Hachis","Marihuana","Cocaina","MDMA", "LSD", "Kriptonita"};
-const char diasSEMANA[7][10] = {"Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"};
-const char posX[]={0x15,0x6C,0xAC};
-const char posXPOLI[]={0,57,120};
-const char posY[8]={0x2E,0x36,0x3E,0x46,0x4E,0x56,0x5E,0x66};
-const char posYHOSPI[4]={0x2E,0x36,0x3E,175};
-const char posYpresta[6]={0x2E,0x36,0x3E,0x46,0x4E,175};
-const char posYrastro[4]={0x2E,0x36,0x3E,175};
-const char posXmenu[3]={16,72,128};
-const int rastroDia[6] = {2,1,0,4,3,5};
+const unsigned char bilbao[8][12] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo","Hospital","Prestamista"};
+const unsigned char madrid[8][13] = {"Orcasitas","Villaverde","Valdemingome","SanCristobal","Carabanchel","Moraleja","Hospital","Prestamista"};
+const unsigned char newyork[8][13] = {"Harlem","Soho","China Town","Jersey","Bronx","Central Park","Hospital","Prestamista"};
+const unsigned char drugs[8][12] = {"Pegamento","Kifi","Hachis","Marihuana","Cocaina","MDMA", "LSD", "Kriptonita"};
+const unsigned char diasSEMANA[7][10] = {"Lunes","Martes","Miercoles","Jueves","Viernes","Sabado","Domingo"};
 
-const int disp[][8] = {
+const unsigned char posXPOLI[]={0x00,0x39,0x78};
+const unsigned char posY[]={0x2E,0x36,0x3E,0x46,0x4E,0x56,0x5E,0x66};
+const unsigned char posYHOSPI[]={0x2E,0x36,0x3E,175};
+const unsigned char posYpresta[]={0x2E,0x36,0x3E,0x46,0x4E,175};
+const unsigned char posYrastro[]={0x2E,0x36,0x3E,175};
+const unsigned char posXmenu[]={16,72,128};
+const unsigned int rastroDia[] = {2,1,0,4,3,5};
+
+const unsigned int disp[6][8] = {
   { 9, 12, 18, 30,105, 280, 1010, 2100},
   { 11, 14, 19, 32,95, 310, 1050, 2050},
   { 10, 15, 18, 35,105, 290, 1080, 1990},
@@ -85,41 +83,41 @@ const int disp[][8] = {
   { 10, 20, 19, 40,100, 300, 1000, 1950}
   };
 
-const int precioVAR[] = { 1,2, 3, 5, 11, 18, 36, 60};
-const int camelloVAR[] = { 4,5, 6, 10, 12, 16, 23, 35};
+const int precioVAR[8] = { 1,2, 3, 5, 11, 18, 36, 60};
+const int camelloVAR[8] = { 4,5, 6, 10, 12, 16, 23, 35};
 
 static unsigned long int next;
 
-int r = 1;
-int stock[] = { 0, 0, 0, 0, 0, 0, 0, 0};
-int camello[] = { 0, 0, 0, 0, 0, 0, 0, 0};
-int precioTEMP[] = { 0, 0, 0, 0, 0, 0, 0, 0};
-int precioBARRIO[] = { 0, 0, 0, 0, 0, 0, 0, 0};
-int dia = 31;
-int cientos = 0;
-int miles = 0;
-long dinero = 3000;
-int deuda = 3000;
-int vida = 100;
-int bar = 0;
-int deudaCiudad=0;
+unsigned int r;
+unsigned int stock[8];
+unsigned int camello[8];// = { 0, 0, 0, 0, 0, 0, 0, 0};
+unsigned int precioTEMP[8];// = { 0, 0, 0, 0, 0, 0, 0, 0};
+unsigned int precioBARRIO[8];// = { 0, 0, 0, 0, 0, 0, 0, 0};
+unsigned int dia;// = 31;
+unsigned int cientos;// = 0;
+unsigned int miles;// = 0;
+unsigned long dinero;// = 3000;
+unsigned int deuda;// = 3000;
+unsigned int vida;// = 100;
+unsigned int bar;// = 0;
+unsigned int deudaCiudad;//=0;
 char SEED;
-int municion;
-int fecha;
-int barrioPartida;
-int randomSecreta;
-int limiteStock;
-int compras;
+unsigned int municion;
+unsigned int fecha;
+unsigned int barrioPartida;
+unsigned int randomSecreta;
+unsigned int limiteStock;
+unsigned int compras;
 
-boolean pistola = false;
-boolean navaja = false;
-boolean cadena = false;
-boolean botiquin = false;
-boolean soplon = false;
-boolean mochila = false;
-boolean rastroOk = false;
-boolean secretaPosible = false;
-boolean haySecreta = false;
+boolean pistola;
+boolean navaja;
+boolean cadena;
+boolean botiquin;
+boolean soplon;
+boolean mochila;
+boolean rastroOk;
+boolean secretaPosible;
+boolean haySecreta;
 
 const unsigned char INTRO[]={
 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1,
@@ -148,14 +146,14 @@ const unsigned char INTRO[]={
 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0
 };
 
-char _LineLength;  //sprites per line. TMS9918=4; V9938=8
+unsigned char _LineLength;  //sprites per line. TMS9918=4; V9938=8
 
-char spr_posX[8];
-char spr_posY[8];
-char dir=0;
-signed char button=0;
-const char sprcol[8]={12,2,3,7,6,8,9,14};
-const char SPRITE_DATA8x8[]={
+unsigned char spr_posX[8];
+unsigned char spr_posY[8];
+unsigned char dir;
+signed char button;
+const unsigned char sprcol[8]={12,2,3,7,6,8,9,14};
+const unsigned char SPRITE_DATA8x8[]={
 24,60,126,255,60,60,60,60,
 24,36,66,145,137,66,36,24,
 108,254,254,254,124,56,16,0,
@@ -166,10 +164,13 @@ const char SPRITE_DATA8x8[]={
 0,4,254,255,255,254,4,0
 };
 
-
-
 void main(void)
 {
+ 
+  int r = 1;
+  dir = 0;
+  button = 0;
+  bar = 0;
   inicializar(); 
 }
 
@@ -248,7 +249,7 @@ int s;
 
 void BARRIO()
 { 
-  
+  char posX[]={0x15,0x6C,0xAC};
   switch (barrioPartida)
   {
   case 1:
@@ -274,8 +275,7 @@ void BARRIO()
   if (vida <= 0 && botiquin == true){
     CLS();
     VPRINT(0,0,"TE HAS QUEDADO SIN VIDA");
-    VPRINT(0,1,"PERO TIENES EL BOTIQUIN");
-    VPRINT(0,2,"RECUPERAS 40 DE VIDA");
+    VPRINT(0,1,"USAS BOTIQUIN");
     vida = 40;
     botiquin = false;
     WAIT(200);
@@ -284,7 +284,6 @@ void BARRIO()
   if (soplon == true && haySecreta == true){
     CLS();
     VPRINT(0,0,"CUIDADO, HAY SECRETA!");
-    VPRINT(0,1,"NO COMERCIES!");
     soplon = false;
     haySecreta = false;
     WAIT(200);
@@ -310,17 +309,15 @@ void BARRIO()
   }
   if (dia == 0 && deuda == 0){
     CLS();
-    VPRINT(0,0,"GAMEOVER");
-    VPRINT(0,1,"GENIAL! HAS PAGADO LA DEUDA");
-    VPRINT(0,2," Y UNOS BENEFICIOS DE");
-    VPRINTNUMBER(23,2,5,dinero);
+    VPRINT(0,0,"GENIAL! HAS PAGADO LA DEUDA");
+    VPRINT(0,1," Y UNOS BENEFICIOS DE");
+    VPRINTNUMBER(23,1,5,dinero);
     WAIT(500);
     inicializar();
   }
   
   int CURSOR = 0;
   gui();
-  //CopyToVRAM((uint) GUI,BASE10,96*8);
   VPRINT (3,1, "Barrio: ");
   imprimeBarrio(bar,barrioPartida);
   VPRINT (19,1, "Dia: ");
@@ -388,8 +385,10 @@ void BARRIO()
     }
 
     HALT;
+
     dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
+
     if (dir == 1 && rastroOk == true){
       PUTSPRITE(0, 120+curMovX, 142, 8, 7);
       ras = 1;
@@ -940,51 +939,7 @@ void JONKI () {
     VPRINT(0,0,"DISPARAS AL JONKI");
     compras = compras - 1;
     municion = municion - 1;
-    r = ((ran100()*4)/100);
-    if (r<1){ r = 1;
-    }
-    int rr = ((ran100()*8)/100);
-    int d = ran100();
-    VPRINT(0,1,"EL JONKI LLEVA ");
-    VPRINTNUMBER(15,1,1,r);
-    VPRINT(17,1,"DE ");
-    VPRINT(21,1,drugs[rr]);
-    VPRINT(0,2,"Y ");
-    VPRINTNUMBER(2,2,3,d);
-    VPRINT(6,2,"DE DINERO");
-    int limite = limiteStock - compras;
-    WAIT(200);
-    if ((compras + r) >= limiteStock)
-      {
-      VPRINT(0,3,"SOBREPASAS EL LIMITE DE STOCK");
-      VPRINT(0,4,"PERO TODAVIA PUEDES PILLAR");
-      VPRINTNUMBER(28,4,1,limite);
-      dinero = dinero + d;
-      stock[rr] = stock[rr] + limite;
-      compras = compras + limite;
-      dia = dia -1;
-      calcDeuda();
-      stockCamello();
-      WAIT(200);
-      PRECIOS(bar);
-      diaSemana();
-      checkSecreta();
-      BARRIO();
-      }
-    else 
-      {
-      dinero = dinero + d;
-      stock[rr] = stock[rr] + r;
-      compras = compras + r;
-      dia = dia -1;
-      calcDeuda();
-      stockCamello();
-      WAIT(200);
-      PRECIOS(bar);
-      diaSemana();
-      checkSecreta();
-      BARRIO();
-      }
+    ganasJonki();
   }
   else {
     peleaBarra(1);
@@ -1452,7 +1407,13 @@ __endasm;
 void WAIT(uint cicles)
 {
   uint i;
-  for(i=0;i<cicles;i++) HALT;
+  for (i=0;i<=cicles;++i)
+    {
+    HALT;
+    PlayAY();
+    Player_Decode();
+    }
+  
 }
 
 char PEEK(uint address)
@@ -1907,7 +1868,13 @@ void peleaBarra(int tipo)
   {
     izd = izd - 8;
     drch = drch + 8;
+    VPRINT(6,10,"XXXXXXXOOOOXXXXXXX");
   }
+  else
+  {
+    VPRINT(6,10,"XXXXXXXXOOXXXXXXXX");  
+  }
+  
   if (tipo == 0)
     {
     velocidad = 4;
@@ -1930,14 +1897,7 @@ void peleaBarra(int tipo)
   CLS();
 
   boolean subiendo = true;
-  if (navaja == true)
-  {
-  VPRINT(6,10,"XXXXXXXOooOXXXXXXX");
-  }
-  else
-  {
-  VPRINT(6,10,"XXXXXXXXOOXXXXXXXX");  
-  }
+
   PUTSPRITE(0, 80, 88, 3, 0);
   int x = 0;
   while(1)
@@ -1988,36 +1948,7 @@ void peleaBarra(int tipo)
             if (tipo == 1) 
             {
             VPRINT(0,0,"LE ZUMBAS AL JONKI");
-            r = ((ran100()*4)/100);
-            if (r<1)
-              { 
-              r = 1;
-              }
-            int rr = ((ran100()*7)/100);
-            int d = ran100();
-            VPRINT(0,1,"EL JONKI LLEVA ");
-            VPRINTNUMBER(15,1,1,r);
-            VPRINT(17,1,"DE ");
-            VPRINT(21,1,drugs[rr]);
-            VPRINT(0,2,"Y ");
-            VPRINTNUMBER(2,2,3,d);
-            VPRINT(6,2,"DE DINERO");
-            int limite = limiteStock - compras;
-            if ((compras + r) >= limiteStock)
-              {
-              VPRINT(0,3,"SOBREPASAS EL LIMITE DE STOCK");
-              VPRINT(0,4,"PERO TODAVIA PUEDES PILLAR");
-              VPRINTNUMBER(28,4,1,limite);
-              compras = compras + limite;
-              dinero = dinero + d;
-              stock[rr] = stock[rr] + limite;
-              }
-            else
-              {
-              dinero = dinero + d;
-              stock[rr] = stock[rr] + r;
-              compras = compras + r;
-              }
+            ganasJonki();
             }
             if (tipo == 2)
             {
@@ -2088,36 +2019,7 @@ void peleaBarra(int tipo)
             if (tipo == 1) 
             {
             VPRINT(0,0,"LE ZUMBAS AL JONKI");
-            r = ((ran100()*4)/100);
-            if (r<1)
-              { 
-              r = 1;
-              }
-            int rr = ((ran100()*7)/100);
-            int d = ran100();
-            VPRINT(0,1,"EL JONKI LLEVA ");
-            VPRINTNUMBER(15,1,1,r);
-            VPRINT(17,1,"DE ");
-            VPRINT(21,1,drugs[rr]);
-            VPRINT(0,2,"Y ");
-            VPRINTNUMBER(2,2,3,d);
-            VPRINT(6,2,"DE DINERO");
-            int limite = limiteStock - compras;
-            if ((compras + r) >= limiteStock)
-              {
-              VPRINT(0,3,"SOBREPASAS EL LIMITE DE STOCK");
-              VPRINT(0,4,"PERO TODAVIA PUEDES PILLAR");
-              VPRINTNUMBER(28,4,1,limite);
-              compras = compras + limite;
-              dinero = dinero + d;
-              stock[rr] = stock[rr] + limite;
-              }
-            else 
-              {
-              dinero = dinero + d;
-              stock[rr] = stock[rr] + r;
-              compras = compras + r;
-              }
+            ganasJonki();
             }
             if (tipo == 2) 
              {
@@ -2387,6 +2289,48 @@ void disparos(){
     PUTSPRITE(0,curX,curY,5,1);
     WAIT(1);
   }
+}
+
+void ganasJonki()
+{
+r = ((ran100()*4)/100);
+            if (r<1)
+              { 
+              r = 1;
+              }
+            int rr = ((ran100()*7)/100);
+            int d = ran100();
+            VPRINT(0,1,"EL JONKI LLEVA ");
+            VPRINTNUMBER(15,1,1,r);
+            VPRINT(17,1,"DE ");
+            VPRINT(21,1,drugs[rr]);
+            VPRINT(0,2,"Y ");
+            VPRINTNUMBER(2,2,3,d);
+            VPRINT(6,2,"DE DINERO");
+            int limite = limiteStock - compras;
+            if ((compras + r) >= limiteStock)
+              {
+              VPRINT(0,3,"SOBREPASAS STOCK");
+              VPRINT(0,4,"PUEDES PILLAR");
+              VPRINTNUMBER(28,4,1,limite);
+              compras = compras + limite;
+              dinero = dinero + d;
+              stock[rr] = stock[rr] + limite;
+              }
+            else 
+              {
+              dinero = dinero + d;
+              stock[rr] = stock[rr] + r;
+              compras = compras + r;
+              }
+      dia = dia -1;
+      calcDeuda();
+      stockCamello();
+      WAIT(200);
+      PRECIOS(bar);
+      diaSemana();
+      checkSecreta();
+      BARRIO();
 }
 
 void rebound()
