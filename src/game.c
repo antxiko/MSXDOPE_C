@@ -1,6 +1,6 @@
 #include "../include/newTypes.h"
 #include "../include/msxSystemVars.h"
-#include "../include/msxBIOS.h"
+//#include "../include/msxBIOS.h"
 #include "../include/VDP_TMS9918A.h"
 #include "../include/VDP_VPRINT.h"
 #include "../include/AY38910BF_S.h"
@@ -60,6 +60,7 @@ void rebound();
 void ganasJonki();
 void checkFin();
 void printDatos();
+void animaCursor();
 
 
 const unsigned char bilbao[8][12] = {"Baraka","Lutxana","Leioa","Erandio","Lekeitio","Oslo","Hospital","Prestamista"};
@@ -110,6 +111,7 @@ unsigned int barrioPartida;
 unsigned int randomSecreta;
 unsigned int limiteStock;
 unsigned int compras;
+signed int curMovX;
 
 boolean pistola;
 boolean navaja;
@@ -121,6 +123,7 @@ boolean mochila;
 boolean rastroOk;
 boolean secretaPosible;
 boolean haySecreta;
+boolean subiendo;
 
 const unsigned char INTRO[]={
 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1, 0x0, 0x1,
@@ -155,25 +158,16 @@ unsigned char spr_posX[8];
 unsigned char spr_posY[8];
 unsigned char dir;
 signed char button;
-const unsigned char sprcol[8]={12,2,3,7,6,8,9,14};
+const unsigned char sprcol[8]={12,2,3};
 const unsigned char SPRITE_DATA8x8[]={
 24,60,126,255,60,60,60,60,
 24,36,66,145,137,66,36,24,
-108,254,254,254,124,56,16,0,
-16,56,124,254,124,56,16,0,
-16,56,84,254,84,16,56,0,
-16,56,124,254,254,16,56,0,
-0,0,0,24,24,0,0,0,
 0,4,254,255,255,254,4,0
 };
 
 void main(void)
 {
- 
-  int r = 1;
-  dir = 0;
-  button = 0;
-  bar = 0;
+  
   inicializar(); 
 }
 
@@ -194,6 +188,11 @@ int s;
           b = ran100();
           camello[a] = (b / camelloVAR[a]) + c;
           }
+  r = 1;
+  dir = 0;
+  button = 0;
+  bar = 0;
+  curMovX = 0;
   bar = 0;
   dinero = 3000;
   deuda = 3000;
@@ -212,6 +211,7 @@ int s;
   rastroOk = false;
   secretaPosible = false;
   haySecreta = false;
+  subiendo = true;
 
   setSprites8x8Patterns();
   initSprites();
@@ -225,7 +225,7 @@ int s;
   fecha = fecharan;
 
   Player_Init();
-  Player_InitSong((unsigned int) SONG00, (unsigned int) NT2, OFF);
+  Player_InitSong((unsigned int) SONG00, (unsigned int) NT2, ON);
 
   CopyToVRAM((uint) INTRO,BASE10,96*8);
 
@@ -275,15 +275,7 @@ void BARRIO()
   default:
     break;
   }
-  if (vida <= 0 && botiquin == true){
-    CLS();
-    VPRINT(0,0,"TE HAS QUEDADO SIN VIDA");
-    VPRINT(0,1,"USAS BOTIQUIN");
-    vida = 40;
-    botiquin = false;
-    WAIT(200);
-    BARRIO();
-  }
+  
   if (soplon == true && haySecreta == true){
     CLS();
     VPRINT(0,0,"CUIDADO, HAY SECRETA!");
@@ -305,9 +297,7 @@ void BARRIO()
   gui();
   printDatos();
 
-  VPRINT (4,22, "COMERCIAR");
-  VPRINT (15,22,"VIAJAR");
-  VPRINT (23,22,"STOCK");
+  VPRINT (4,22, "COMERCIAR  VIAJAR  STOCK");
   VPRINT (2,18,diasSEMANA[fecha]);
 
   if (fecha == rastroDia[bar]){
@@ -328,48 +318,28 @@ void BARRIO()
   {
   VPRINTNUMBER(15,6+c,5,precioBARRIO[c]);
   }
-  
-    PUTSPRITE(0, posX[CURSOR], 174, 8, 7);
     
-    int curMov = 0;
-    int curMovX = 0;
-    boolean subiendo = true;
+ 
     while(1)
     {
-
-    curMov = curMov +1;
-    if (curMov > 1 && subiendo == true){
-      curMovX = curMovX +1;
-      curMov = 0;
-    }
-    if (curMov > 1 && subiendo == false){
-      curMovX = curMovX -1;
-      curMov = 0;
-    }
-    if (curMovX == 2){
-      subiendo = false;
-    }
-    if (curMovX == -2){
-      subiendo = true;
-    }
-    if (ras == 0){
-    PUTSPRITE(0, posX[CURSOR]+curMovX, 174, 8, 7);
-    }
-    if (ras == 1){
-    PUTSPRITE(0, 120+curMovX, 142, 8, 7);
-    }
-
     HALT;
+    PlayAY();
+   
+    animaCursor();
+    PUTSPRITE(0, posX[CURSOR]+curMovX, 174, 8, 2);
+    if (ras == 1){
+    PUTSPRITE(0, 120+curMovX, 142, 8, 2);
+    }
 
     dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
 
     if (dir == 1 && rastroOk == true){
-      PUTSPRITE(0, 120+curMovX, 142, 8, 7);
+      PUTSPRITE(0, 120+curMovX, 142, 8, 2);
       ras = 1;
     }
     if (dir == 5){
-      PUTSPRITE(0, posX[CURSOR], 174, 8, 7);
+      PUTSPRITE(0, posX[CURSOR]+curMovX, 174, 8, 2);
       ras = 0;
     }
     if (dir == 3){
@@ -378,7 +348,6 @@ void BARRIO()
           CURSOR=2;
         }
         WAIT(10);
-        PUTSPRITE(0, posX[CURSOR], 174, 8, 7);
     }
     if (dir == 7)
     {
@@ -388,32 +357,32 @@ void BARRIO()
           CURSOR=0;
         }
         WAIT(10);
-        PUTSPRITE(0, posX[CURSOR], 174, 8, 7);
     }
     if (button < 0 && rastroOk == true && ras == 1)
     {
-    PUTSPRITE(0, 250, 250, 8, 7);
+    PUTSPRITE(0, 250, 250, 8, 2);
     rebound();
     rastro();
     }
     if (button < 0 && CURSOR == 2 && ras == 0)
     {
-      PUTSPRITE(0, 250, 250, 8, 7);
+      PUTSPRITE(0, 250, 250, 8, 2);
       rebound();
       STOCK();
     }
     if (button < 0 && CURSOR == 1 && ras == 0)
     {
-      PUTSPRITE(0, 250, 250, 8, 7);
+      PUTSPRITE(0, 250, 250, 8, 2);
       rebound();
       VIAJAR();
     }
     if (button < 0 && CURSOR == 0 && ras == 0)
     {
-    PUTSPRITE(0, 250, 250, 8, 7);
+    PUTSPRITE(0, 250, 250, 8, 2);
     rebound();
     COMERCIAR();
     }
+    Player_Decode();
   }
 }
 
@@ -428,7 +397,7 @@ void menuPrincipal(){
  VPRINT(8,8,"MSX DOPE WARS");
  VPRINT(9,13,"ELIGE CIUDAD");
  VPRINT(3,15,"BILBAO MADRID NEW YORK");
- PUTSPRITE(0, posXmenu[CURSOR], 118, 8, 7);
+ PUTSPRITE(0, posXmenu[CURSOR], 118, 8, 2);
  Player_Resume();
  
     while(1)
@@ -436,6 +405,10 @@ void menuPrincipal(){
     HALT;
     
     PlayAY();
+
+    animaCursor();
+    PUTSPRITE(0, posXmenu[CURSOR]+curMovX, 118, 8, 2);
+
     dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
 
@@ -444,8 +417,7 @@ void menuPrincipal(){
         if (CURSOR == 3){
           CURSOR=2;
         }
-        WAIT(10);
-        PUTSPRITE(0, posXmenu[CURSOR], 118, 8, 7);
+      WAIT(10);
     }
     if (dir == 7)
     {
@@ -455,12 +427,11 @@ void menuPrincipal(){
           CURSOR=0;
         }
         WAIT(10);
-        PUTSPRITE(0, posXmenu[CURSOR], 118, 8, 7);
     }
 
     if (button < 0 && CURSOR == 0)
     {
-    PUTSPRITE(0, 260, 240, 8, 7);
+    PUTSPRITE(0, 260, 240, 8, 2);
     WAIT(10);
     dia = 31;
     deuda = 3000;
@@ -473,7 +444,7 @@ void menuPrincipal(){
     }
     if (button < 0 && CURSOR == 1)
     {
-    PUTSPRITE(0, 260, 240, 8, 7);
+    PUTSPRITE(0, 260, 240, 8, 2);
     WAIT(10);
     dia = 90;
     deuda = 5000;
@@ -486,7 +457,7 @@ void menuPrincipal(){
     }
     if (button < 0 && CURSOR == 2)
     {
-    PUTSPRITE(0, 260, 240, 8, 7);
+    PUTSPRITE(0, 260, 240, 8, 2);
     WAIT(10);
     dia = 365;
     deuda = 8000;
@@ -504,6 +475,7 @@ void menuPrincipal(){
 void COMERCIAR()
 { 
   int CURSOR = 0;
+  curMovX = 0;
 
   CLS();
   gui();
@@ -517,38 +489,21 @@ void COMERCIAR()
   {
   VPRINTNUMBER(21,6+c,5,precioBARRIO[c]);
   }
-  WAIT(10);
-  int curMov = 0;
-  int curMovX = 0;
-  boolean subiendo = false;
   
   while(1)
     {     
     HALT;
+    PlayAY();
+
     dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
 
-    curMov = curMov +1;
-    if (curMov > 1 && subiendo == true){
-      curMovX = curMovX +1;
-      curMov = 0;
-    }
-    if (curMov > 1 && subiendo == false){
-      curMovX = curMovX -1;
-      curMov = 0;
-    }
-    if (curMovX == 2){
-      subiendo = false;
-    }
-    if (curMovX == -2){
-      subiendo = true;
-    }
-
-    PUTSPRITE(0,20+curMovX,posY[CURSOR], 8, 7);
+    animaCursor();
+    PUTSPRITE(0,20+curMovX,posY[CURSOR], 8, 2);
     
     if (dir == 3  && stock[CURSOR] > 0){
         if (haySecreta == true){
-          PUTSPRITE(0, 260, 240, 8, 7);
+          PUTSPRITE(0, 260, 240, 8, 2);
           CLS();
           VPRINT(0,0,"ES UN SECRETA!");
           VPRINT(0,0,"DROGAS REQUISADAS Y 3 DIAS DE CARCEL");
@@ -621,7 +576,7 @@ void COMERCIAR()
           CURSOR = 0;
         }
         WAIT(10);
-        PUTSPRITE(0,20,posY[CURSOR], 8, 7);
+        
     }
     if (dir == 5){
       CURSOR = CURSOR + 1;
@@ -629,21 +584,21 @@ void COMERCIAR()
           CURSOR=7;
         }
         WAIT(10);
-        PUTSPRITE(0,20,posY[CURSOR], 8, 7);
     }
     if (button < 0)
     {
-      PUTSPRITE(0, 260, 240, 8, 7);
+      PUTSPRITE(0, 260, 240, 8, 2);
       CLS();
       rebound();
       BARRIO();
     }
+    Player_Decode();
   }
 }
 
 void STOCK()
 {
-  PUTSPRITE(0, 260, 240, 8, 7);
+  PUTSPRITE(0, 260, 240, 8, 2);
   CLS();
   gui();
   //CopyToVRAM((uint) GUI,BASE10,96*8);
@@ -675,8 +630,8 @@ void VIAJAR()
   int CURSOR=0;
   CLS();
   gui();
-  //CopyToVRAM((uint) GUI,BASE10,96*8);
   CURSOR = bar;
+
   int d;
   for (d = 0; d < 6; ++d)
   {
@@ -699,33 +654,16 @@ void VIAJAR()
   VPRINT(10,12,"Hospital");
   VPRINT(10,13,"Prestamista");
 
-
-  int curMov = 0;
-  int curMovX = 0;
-  boolean subiendo = true;
   while(1)
     {
     HALT;
     
+    PlayAY();
+
     dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
-    curMov = curMov +1;
-    if (curMov > 1 && subiendo == true){
-      curMovX = curMovX +1;
-      curMov = 0;
-    }
-    if (curMov > 1 && subiendo == false){
-      curMovX = curMovX -1;
-      curMov = 0;
-    }
-    if (curMovX == 2){
-      subiendo = false;
-    }
-    if (curMovX == -2){
-      subiendo = true;
-    }
-
-    PUTSPRITE(0,70+curMovX,posY[CURSOR], 8, 7);
+    animaCursor();
+    PUTSPRITE(0,70+curMovX,posY[CURSOR], 8, 2);
     
     if (dir == 1){
       CURSOR = CURSOR - 1;
@@ -733,7 +671,6 @@ void VIAJAR()
           CURSOR = 0;
         }
         WAIT(10);
-        PUTSPRITE(0,70,posY[CURSOR], 8, 7);
     }
     if (dir == 5){
       CURSOR = CURSOR + 1;
@@ -741,12 +678,11 @@ void VIAJAR()
           CURSOR=7;
         }
         WAIT(10);
-        PUTSPRITE(0,70,posY[CURSOR], 8, 7);
     }
     if (button < 0)
     {
       rebound();
-      PUTSPRITE(0, 260, 240, 8, 7);
+      PUTSPRITE(0, 260, 240, 8, 2);
       bar = CURSOR;
       char r;
       r = getR();
@@ -816,6 +752,7 @@ void VIAJAR()
         BARRIO();
       }
     }
+  Player_Decode();
   }
 }
 
@@ -858,7 +795,7 @@ void JONKI () {
   int CURSOR = 0;
   VPRINT(1,3,"ATACAR");
   VPRINT(8,3,"INTENTAR ESCAPAR");
-  PUTSPRITE(0, 0, 24, 8, 7);
+  PUTSPRITE(0, 0, 24, 8, 2);
 
   while(1)
     {
@@ -873,7 +810,7 @@ void JONKI () {
           CURSOR=1;
         }
         WAIT(20);
-        PUTSPRITE(0, 56, 24, 8, 7);
+        PUTSPRITE(0, 56, 24, 8, 2);
     }
     if (dir == 7)
     {
@@ -883,10 +820,10 @@ void JONKI () {
           CURSOR=0;
         }
         WAIT(20);
-        PUTSPRITE(0, 0, 24, 8, 7);
+        PUTSPRITE(0, 0, 24, 8, 2);
     }
     if (button < 0 && CURSOR == 0){
-      PUTSPRITE(0, 260, 240, 8, 7);
+      PUTSPRITE(0, 260, 240, 8, 2);
       CLS();
       VPRINT(0,0,"ATACAS");
       WAIT(50);
@@ -894,7 +831,7 @@ void JONKI () {
     }
     if (button < 0 && CURSOR == 1)
     {
-      PUTSPRITE(0, 260, 240, 8, 7);
+      PUTSPRITE(0, 260, 240, 8, 2);
       CLS();
       rebound();
       intentarEscapar(0);
@@ -908,7 +845,7 @@ void JONKI () {
     }
   if (pistola == true)
   {
-    PUTSPRITE(0, 260, 240, 8, 7);
+    PUTSPRITE(0, 260, 240, 8, 2);
     CLS();
     VPRINT(0,0,"DISPARAS AL JONKI");
     compras = compras - 1;
@@ -924,7 +861,7 @@ void POLICIA() {
   CLS();
   int CURSOR = 0;
   VPRINT(1,3,"ATACAR ESCAPAR SOBORNAR");
-  PUTSPRITE(0,posXPOLI[CURSOR], 24, 8, 7);
+  PUTSPRITE(0,posXPOLI[CURSOR], 24, 8, 2);
 
   while(1)
     {
@@ -939,7 +876,7 @@ void POLICIA() {
           CURSOR=2;
         }
         WAIT(20);
-        PUTSPRITE(0, posXPOLI[CURSOR], 24, 8, 7);
+        PUTSPRITE(0, posXPOLI[CURSOR], 24, 8, 2);
       }
     if (dir == 7)
       {
@@ -949,12 +886,12 @@ void POLICIA() {
           CURSOR=0;
         }
         WAIT(20);
-        PUTSPRITE(0, posXPOLI[CURSOR], 24, 8, 7);
+        PUTSPRITE(0, posXPOLI[CURSOR], 24, 8, 2);
       }
     if (button < 0 && CURSOR == 0)
       {
       rebound();
-      PUTSPRITE(0, 260, 240, 8, 7);
+      PUTSPRITE(0, 260, 240, 8, 2);
       CLS();
       VPRINT(0,0,"ATACAS");
       WAIT(50);
@@ -992,7 +929,7 @@ void POLICIA() {
 void SOBORNO() 
 {
   int CURSOR = 0;
-PUTSPRITE(0, 260, 240, 8, 7);
+PUTSPRITE(0, 260, 240, 8, 2);
 CURSOR = 0;
 VPRINT(0,0,"SOBORNAS");
 WAIT(50);
@@ -1006,7 +943,7 @@ VPRINT(20,1,"DINEROS");
 VPRINT(0,3,"LO PAGAS?");
 VPRINT(1,4,"SI");
 VPRINT(4,4,"NO");
-PUTSPRITE(0, 0,32, 8, 7);
+PUTSPRITE(0, 0,32, 8, 2);
   while(1)
     {
     HALT;
@@ -1020,7 +957,7 @@ PUTSPRITE(0, 0,32, 8, 7);
           CURSOR=1;
         }
         WAIT(10);
-        PUTSPRITE(0, 24, 32, 8, 7);
+        PUTSPRITE(0, 24, 32, 8, 2);
     }
     if (dir == 7)
     {
@@ -1030,12 +967,12 @@ PUTSPRITE(0, 0,32, 8, 7);
           CURSOR=0;
         }
         WAIT(10);
-        PUTSPRITE(0, 0, 32, 8, 7);
+        PUTSPRITE(0, 0, 32, 8, 2);
     }
     if (button < 0 && CURSOR == 0)
       {
         rebound();
-        PUTSPRITE(0, 260, 240, 8, 7);
+        PUTSPRITE(0, 260, 240, 8, 2);
         if (dinero < rf)
         {
           CLS();
@@ -1064,7 +1001,7 @@ PUTSPRITE(0, 0,32, 8, 7);
     if (button < 0 && CURSOR == 1)
       {
       rebound();
-      PUTSPRITE(0, 260, 240, 8, 7);
+      PUTSPRITE(0, 260, 240, 8, 2);
       CLS();
       VPRINT(0,0,"3 EN CARCEL, DROGAS REQUISADAS");
       WAIT(200);
@@ -1102,18 +1039,19 @@ void hospital() {
   while(1)
     {
     HALT;
-    //------------------------- cursor keys
+    PlayAY();
+
     dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
-
-    PUTSPRITE(0, 40, posYHOSPI[CURSOR], 8, 7);
+    animaCursor();
+    PUTSPRITE(0, 40+curMovX, posYHOSPI[CURSOR], 8, 2);
+    
     if (dir == 1){
       CURSOR = CURSOR - 1;
         if (CURSOR < 0){
           CURSOR=0;
         }
         WAIT(10);
-        PUTSPRITE(0, 40, posYHOSPI[CURSOR], 8, 7);
     }
     if (dir == 5)
     {
@@ -1123,7 +1061,6 @@ void hospital() {
           CURSOR=3;
         }
         WAIT(10);
-        PUTSPRITE(0, 40, posYHOSPI[CURSOR], 8, 7);
     }
     if (button < 0 && CURSOR == 0 && vida < 100 && dinero > 30)
     {
@@ -1150,9 +1087,10 @@ void hospital() {
     if (button < 0 && CURSOR == 3)
     {
       rebound();
-      PUTSPRITE(0, 260, 240, 8, 7);
+      PUTSPRITE(0, 260, 240, 8, 2);
       VIAJAR();
     }
+  Player_Decode();
   }
 }
 
@@ -1170,17 +1108,18 @@ void prestamista() {
   VPRINT(6,8,"TELEFONO DE SOPLON  500");
   VPRINT(6,9,"MOCHILA             500");
   VPRINT(6,10,"COMPRAR MUNICION     50");
-  VPRINT(6,15,"MUNICION:");
-  VPRINTNUMBER(15,15,2,municion);
 
   while(1)
     {
     HALT;
-    //------------------------- cursor keys
+    PlayAY();
+
     dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
 
-    PUTSPRITE(0, 40, posYpresta[CURSOR], 8, 7);
+    animaCursor();
+    PUTSPRITE(0, 40+curMovX, posYpresta[CURSOR], 8, 2);
+
     if (dir == 3 && CURSOR == 0)
     {
       deuda = deuda + 100;
@@ -1202,7 +1141,6 @@ void prestamista() {
       }
       VPRINTNUMBER(25,2,5, deuda);
       VPRINTNUMBER (11,2, 5, dinero);
-      //VPRINTNUMBER(0,0,2,compras);
       WAIT(10);
     }
     
@@ -1212,7 +1150,6 @@ void prestamista() {
           CURSOR=0;
         }
         WAIT(10);
-        PUTSPRITE(0, 40, posYpresta[CURSOR], 8, 7);
     }
     if (dir == 5)
     {
@@ -1222,10 +1159,9 @@ void prestamista() {
           CURSOR=5;
         }
         WAIT(10);
-        PUTSPRITE(0, 40, posYpresta[CURSOR], 8, 7);
     }
 
-    if (button < 0 && CURSOR == 1 && pistola == false && dinero > 500)
+    if (button < 0 && CURSOR == 1 && pistola == false && dinero >= 500)
     {
       dinero = dinero - 500;
       pistola = true;
@@ -1233,7 +1169,7 @@ void prestamista() {
       WAIT(10);
     }
 
-    if (button < 0 && CURSOR == 2 && soplon == false && dinero > 500)
+    if (button < 0 && CURSOR == 2 && soplon == false && dinero >= 500)
     {
       dinero = dinero - 500;
       soplon = true;
@@ -1241,7 +1177,7 @@ void prestamista() {
       WAIT(10);
     }
 
-    if (button < 0 && CURSOR == 3 && mochila == false && dinero > 500)
+    if (button < 0 && CURSOR == 3 && mochila == false && dinero >= 500)
     {
       limiteStock = 50;
       dinero = dinero - 500;
@@ -1250,23 +1186,22 @@ void prestamista() {
       WAIT(10);
     }
 
-    if (button < 0 && CURSOR == 4 && dinero > 100 && compras < limiteStock)
+    if (button < 0 && CURSOR == 4 && dinero >= 50 && compras < limiteStock)
     {
       compras = compras +1;
       dinero = dinero - 50;
       municion = municion + 1;
       VPRINTNUMBER(11,2, 5, dinero);
-      VPRINTNUMBER(15,15,2,municion);
-      //VPRINTNUMBER(0,0,2,compras);
       WAIT(10);
     }
     
     if (button < 0 && CURSOR == 5)
     {
     rebound();
-    PUTSPRITE(0, 260, 240, 8, 7);
+    PUTSPRITE(0, 260, 240, 8, 2);
     VIAJAR();
     }
+  Player_Decode();
   }
 }
 
@@ -1499,17 +1434,7 @@ void rastro() {
   }
   int CURSOR = 0;
   gui();
-  //CopyToVRAM((uint) GUI,BASE10,96*8);
-  VPRINT (3,1, "Barrio: ");
-  imprimeBarrio(bar,barrioPartida);
-  VPRINT (19,1, "Dia: ");
-  VPRINTNUMBER(24,1,2, dia);
-  VPRINT (3,2, "Dinero: ");
-  VPRINTNUMBER (11,2, 5, dinero);
-  VPRINT (19,2, "Deuda: ");
-  VPRINTNUMBER(25,2,5, deuda);
-  VPRINT (3,3, "Vida: ");
-  VPRINTNUMBER(9,3,3, vida);
+  printDatos();
   VPRINT (6,22,"VIAJAR");
 
   VPRINT(6,6,"NAVAJA OXIDADA      100");
@@ -1518,15 +1443,16 @@ void rastro() {
   VPRINTNUMBER (20,8,1,rc);
   VPRINTNUMBER (24,8,5,pdr);
 
-  PUTSPRITE(0, 40, posYpresta[CURSOR], 8, 7);
+  
   while(1)
     {
     HALT;
-    //------------------------- cursor keys
+    PlayAY();
     dir = STICK(CURSORKEYS);
     button=STRIG(KEYBOARD_BUTTON);
 
-    
+    animaCursor();
+    PUTSPRITE(0, 40+curMovX, posYrastro[CURSOR], 8, 2);
     
     if (dir == 1){
       CURSOR = CURSOR - 1;
@@ -1534,7 +1460,6 @@ void rastro() {
           CURSOR=0;
         }
         WAIT(10);
-        PUTSPRITE(0, 40, posYrastro[CURSOR], 8, 7);
     }
     if (dir == 5)
     {
@@ -1544,7 +1469,6 @@ void rastro() {
           CURSOR=3;
         }
         WAIT(10);
-        PUTSPRITE(0, 40, posYrastro[CURSOR], 8, 7);
     }
 
     if (button < 0 && CURSOR == 0 && dinero > 100 && navaja == false)
@@ -1604,6 +1528,7 @@ void rastro() {
         VIAJAR();
       }
     } 
+  Player_Decode();
   }
 }
 
@@ -1618,7 +1543,7 @@ void pijo() {
   VPRINT(1,4,"SI");
   VPRINT(4,4,"NO");
   VPRINT(7,4,"HOSTIA Y PALANTE");
-  PUTSPRITE(0, cur,32, 8, 7);
+  PUTSPRITE(0, cur,32, 8, 2);
   while(1)
     {
     HALT;
@@ -1634,7 +1559,7 @@ void pijo() {
           cur = 48;
         }
         WAIT(10);
-        PUTSPRITE(0, cur, 32, 8, 7);
+        PUTSPRITE(0, cur, 32, 8, 2);
     }
     if (dir == 7)
     {
@@ -1646,11 +1571,11 @@ void pijo() {
           cur = 0;
         }
         WAIT(10);
-        PUTSPRITE(0, cur, 32, 8, 7);
+        PUTSPRITE(0, cur, 32, 8, 2);
     }
     if (button < 0 && CURSOR == 0)
       {
-      PUTSPRITE(0, 260, 240, 8, 7);
+      PUTSPRITE(0, 260, 240, 8, 2);
       if (stock[pijoDroga] > 0) 
         {
         CLS();
@@ -1695,7 +1620,7 @@ void pijo() {
       }
     if (button < 0 && CURSOR == 1)
       {
-      PUTSPRITE(0, 260, 240, 8, 7);
+      PUTSPRITE(0, 260, 240, 8, 2);
       CLS();
       VPRINT(0,0,"NO VENDES, TE ATACA");
       WAIT(100);
@@ -1703,7 +1628,7 @@ void pijo() {
       }
     if (button < 0 && CURSOR == 2)
       {
-      PUTSPRITE(0, 260, 240, 8, 7);
+      PUTSPRITE(0, 260, 240, 8, 2);
       CLS();
       VPRINT(0,0,"LE SUELTAS UNA HOSTIA"); 
       WAIT(50);
@@ -1915,7 +1840,7 @@ void resultadoBarra(boolean victoria, int personaje, int vidaMenos)
 }
 
 void intentarEscapar(int tipo){
-  PUTSPRITE(0, 260, 240, 8, 7);
+  PUTSPRITE(0, 260, 240, 8, 2);
   int velocidad = 0;
   int diasRestar = 0;
   int vidaRestar = 0;
@@ -2022,11 +1947,11 @@ void disparos(){
   int sitioX = 0;
   int sitioY = 0;
   int posicion = (ran100()*4)/100;
-  sitioX = posicionPolicia[0] + posicion;
+
+
+
+sitioX = posicionPolicia[0] + posicion;
   sitioY = posicionPolicia[1] + posicion;
-
-
-
   VPRINT(sitioX,sitioY,"OOOO");
   VPRINT(sitioX,sitioY+1,"OOOO");
   VPRINT(sitioX,sitioY+2,"OOOO");
@@ -2209,6 +2134,14 @@ void checkFin()
     WAIT(500);
     inicializar();
   }
+  if (vida <= 0 && botiquin == true){
+    CLS();
+    VPRINT(0,0,"SIN VIDA, USAS BOTIQUIN");
+    vida = 40;
+    botiquin = false;
+    WAIT(200);
+    BARRIO();
+  }
   if (dia == 0 && deuda == 0){
     CLS();
     VPRINT(0,0,"GENIAL! HAS PAGADO LA DEUDA");
@@ -2232,4 +2165,31 @@ void printDatos()
   VPRINTNUMBER(25,2,5, deuda);
   VPRINT (3,3, "Vida: ");
   VPRINTNUMBER(9,3,3, vida);
+}
+
+void animaCursor()
+{
+ if (subiendo == true)
+  {
+  if (curMovX < 3)
+    {
+    ++curMovX;
+    subiendo = true;
+    }
+  else
+    {
+      subiendo = false;
+    }
+  }
+  if (subiendo == false)
+  {
+    if (curMovX > -3){
+      --curMovX;
+      subiendo = false;
+    }
+    else
+    {
+      subiendo = true;
+    }
+  }
 }
